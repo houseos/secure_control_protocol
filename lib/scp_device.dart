@@ -1,9 +1,11 @@
+import 'dart:io';
+
 class ScpDevice {
   String deviceType;
   String deviceId;
 
   String ipAddress;
-  bool defaultPassword;
+  bool isDefaultPasswordSet;
   String knownPassword;
   int currentPasswordNumber;
 
@@ -11,13 +13,12 @@ class ScpDevice {
       {this.deviceId,
       this.deviceType,
       this.ipAddress,
-      this.defaultPassword,
+      this.isDefaultPasswordSet,
       this.knownPassword,
       this.currentPasswordNumber});
 
-  void sendControlUp() {}
-
-  void sendControlDown() {}
-
-  void sendControlStop() {}
+  @override
+  String toString(){
+    return "ScpDevice:\n Type: $deviceType,\n ID: $deviceId,\n IP: $ipAddress,\n default password: $isDefaultPasswordSet\n password: $knownPassword,\n current password number: $currentPasswordNumber";
+  }
 }

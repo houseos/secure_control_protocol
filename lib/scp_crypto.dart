@@ -7,20 +7,23 @@ import 'package:cryptography/utils.dart';
 import 'package:test/test.dart';
 
 class ScpCrypto {
+
+  static final Random _random = Random.secure();
+
   Future<String> decodeThenDecrypt(
-      String key, String nvcn, String base64Text) async {
+      String key, String nonce, String base64Text) async {
     List<int> decodedKey = base64.decode(key);
-    List<int> decodedNvcn = base64.decode(nvcn);
+    List<int> decodedNonce = base64.decode(nonce);
     List<int> decodedText = base64.decode(base64Text);
-    return await decryptMessage(decodedKey, decodedNvcn, decodedText);
+    return await decryptMessage(decodedKey, decodedNonce, decodedText);
   }
 
   Future<String> decryptMessage(
-      List<int> key, List<int> nvcn, List<int> encryptedText) async {
+      List<int> key, List<int> nonce, List<int> encryptedText) async {
     // Encode Key
     SecretKey secretKey = SecretKey(key);
     //Encode nonce
-    Nonce nonce = Nonce(nvcn);
+    Nonce encodedNonce = Nonce(nonce);
     //Encode encrypted text
     List<int> cipherText = encryptedText;
     // Decrypt
@@ -28,7 +31,7 @@ class ScpCrypto {
         .decrypt(
       cipherText,
       secretKey: secretKey,
-      nonce: nonce,
+      nonce: encodedNonce,
     )
         .catchError((err) {
       print(err);
@@ -38,25 +41,23 @@ class ScpCrypto {
   }
 
   Future<ScpJson> encryptThenEncode(
-      String key, String nvcn, String message) async {
+      String key, String message) async {
     EncryptedPayload encryptedPayload =
-        await encryptMessage(key, nvcn, message);
+        await encryptMessage(key, message);
     return ScpJson(
       key: base64Encode(utf8.encode(key)),
-      nvcn: base64Encode(utf8.encode(nvcn)),
       encryptedPayload: encryptedPayload,
     );
   }
 
   Future<EncryptedPayload> encryptMessage(
-      String key, String nvcn, String plainText) async {
+      String key, String plainText) async {
     // Encode Key
     SecretKey secretKey = SecretKey(utf8.encode(key));
-    //Encode nonce
-    Nonce nonce = Nonce(utf8.encode(nvcn));
     //Encode encrypted text
     List<int> clearText = utf8.encode(plainText);
-    // Decrypt
+    // Encrypt
+    Nonce nonce = Nonce.randomBytes(12);
     final encryptedText = await chacha20Poly1305Aead.encrypt(
       clearText,
       secretKey: secretKey,
@@ -73,7 +74,8 @@ class ScpCrypto {
       dataLength:
           chacha20Poly1305Aead.getDataInCipherText(encryptedText).length,
       base64Mac: base64Mac,
-      base64Combined: base64Encode(encryptedText),
+      base64DataWithMac: base64Encode(encryptedText),
+      base64Nonce: base64Encode(nonce.bytes),
     );
   }
 
@@ -88,28 +90,32 @@ class ScpCrypto {
     var mac = sink.mac;
     return ListEquality().equals(hexToBytes(hmac), mac.bytes);
   }
+   
+  String generatePassword() {
+      var values = List<int>.generate(32, (i) => _random.nextInt(256));
+      return base64Url.encode(values).substring(0,32);
+  }
 }
 
 class EncryptedPayload {
-  String base64Combined;
+  String base64DataWithMac;
   String base64Data;
   int dataLength;
   String base64Mac;
+  String base64Nonce;
 
   EncryptedPayload(
-      {this.base64Data, this.dataLength, this.base64Mac, this.base64Combined});
+      {this.base64Data, this.dataLength, this.base64Mac, this.base64DataWithMac, this.base64Nonce});
 }
 
 class ScpJson {
   String key;
-  String nvcn;
   EncryptedPayload encryptedPayload;
 
-  ScpJson({this.key, this.nvcn, this.encryptedPayload});
+  ScpJson({this.key, this.encryptedPayload});
 
   Map<String, dynamic> toJson() => {
         'key': key,
-        'nvcn': nvcn,
         'payload': encryptedPayload.base64Data,
         'payloadLength': encryptedPayload.dataLength,
         'mac': encryptedPayload.base64Mac,

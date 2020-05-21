@@ -87,7 +87,7 @@ class EncryptCommand extends Command {
         'Encrypt called with following parameters, key: ${argResults['key']}, nonce: ${argResults['nonce']}, payload: ${argResults['payload']}');
 
     ScpJson scpJson = await ScpCrypto().encryptThenEncode(
-        argResults['key'], argResults['nonce'], argResults['payload']);
+        argResults['key'], argResults['payload']);
     print(scpJson.toJson());
   }
 }
@@ -124,9 +124,9 @@ class TestCommand extends Command {
         'First encrypt then decrypt with following parameters, key: ${argResults['key']}, nonce: ${argResults['nonce']}, payload: ${argResults['payload']}');
 
     ScpJson scpJson = await ScpCrypto().encryptThenEncode(
-        argResults['key'], argResults['nonce'], argResults['payload']);
+        argResults['key'], argResults['payload']);
     print(await ScpCrypto().decodeThenDecrypt(
-        scpJson.key, scpJson.nvcn, scpJson.encryptedPayload.base64Combined));
+        scpJson.key, scpJson.encryptedPayload.nonce.bytes.toString(), scpJson.encryptedPayload.base64DataWithMac));
   }
 }
 
@@ -164,10 +164,10 @@ class SendCommand extends Command {
 
   void run() async {
     ScpJson scpJson = await ScpCrypto().encryptThenEncode(
-        argResults['key'], argResults['nonce'], argResults['payload']);
+        argResults['key'], argResults['payload']);
 
     String requestString =
-        "http://${argResults['destination']}/decodeBase64ThenDecrypt?key=${urlEncode(scpJson.key)}&nvcn=${urlEncode(scpJson.nvcn)}&payload=${urlEncode(scpJson.encryptedPayload.base64Data)}&payloadLength=${scpJson.encryptedPayload.dataLength}&mac=${urlEncode(scpJson.encryptedPayload.base64Mac)}";
+        "http://${argResults['destination']}/decodeBase64ThenDecrypt?key=${urlEncode(scpJson.key)}&nvcn=${urlEncode(scpJson.encryptedPayload.nonce.bytes.toString())}&payload=${urlEncode(scpJson.encryptedPayload.base64Data)}&payloadLength=${scpJson.encryptedPayload.dataLength}&mac=${urlEncode(scpJson.encryptedPayload.base64Mac)}";
 
     final response = await http
         .get(requestString)

@@ -8,18 +8,27 @@ import 'package:secure_control_protocol/scp_message_sender.dart';
 import 'package:secure_control_protocol/scp_device.dart';
 
 class Scp {
+  static Scp instance;
+
   // List of configured devices known to SCP
   List<ScpDevice> knownDevices;
 
   // List of newly discovered not configured devices
   List<ScpDevice> newDevices;
 
+  static Scp getInstance() {
+    if (Scp.instance == null) {
+      Scp.instance = Scp();
+    }
+    return Scp.instance;
+  }
+
   Scp() {
     knownDevices = List<ScpDevice>();
   }
 
   void doDiscover(String subnet, String mask) async {
-    List<ScpDevice> discoveredDevices = List<ScpDevice>();
+    newDevices = List<ScpDevice>();
     // Get a list with all relevant IP addresses
     IPRange range = IPRange(subnet, int.parse(mask));
     List<String> allIPs = range.getAllIpAddressesInRange();
@@ -37,19 +46,19 @@ class Scp {
             ScpResponseDiscover parsedResponse =
                 ScpResponseParser.parseDiscoverResponse(response);
             if (parsedResponse != null) {
-              discoveredDevices.add(
-                ScpDevice(
+              ScpDevice dev = ScpDevice(
                   deviceId: parsedResponse.deviceId,
                   deviceType: parsedResponse.deviceType,
-                  currentPasswordNumber: parsedResponse.currentPassowrdNumber,
+                  currentPasswordNumber: parsedResponse.currentPasswordNumber,
                   ipAddress: allIPs
                       .firstWhere((ip) => response.request.url.host == ip),
-                  defaultPassword:
-                      parsedResponse.currentPassowrdNumber == 0 ? true : false,
-                ),
-              );
-              print(
-                  'DeviceId: ${discoveredDevices.last.deviceId}, Type: ${discoveredDevices.last.deviceType}, IP: ${knownDevices.last.ipAddress}');
+                  isDefaultPasswordSet:
+                      parsedResponse.currentPasswordNumber == 0 ? true : false,
+                  knownPassword: parsedResponse.currentPasswordNumber == 0
+                      ? "01234567890123456789012345678901"
+                      : "");
+              newDevices.add(dev);
+              print(dev.toString());
             }
           }
         }
@@ -57,18 +66,46 @@ class Scp {
     );
   }
 
-  void doProvisioning() {
+  void doProvisioning(String ssid, String wifiPassword, bool jsonExport) async {
     // for each new device
-
-    newDevices.forEach((device) {
-      // get NVCN
-      // generate new password
+    await newDevices.forEach((device) async {
+      print('Provisioning device: ${device.deviceId}');
       // send security-pw-change
-      // get NVCN
+      final newPasswordResponse =
+          await ScpMessageSender.sendNewPassword(device);
+      if (newPasswordResponse == null) {
+        print('failed to send new password');
+        return;
+      }
+      if (newPasswordResponse != null &&
+          newPasswordResponse.bodyBytes != null) {
+        if (newPasswordResponse.statusCode == 200) {
+          ScpResponseSetPassword parsedResponse =
+              ScpResponseParser.parseSetPasswordResponse(newPasswordResponse);
+          if (parsedResponse != null) {
+            if (parsedResponse.result == "success") {
+              print('Successfully set new password.');
+              device.currentPasswordNumber = int.parse(parsedResponse.currentPasswordNumber);
+              print(device.toString());
+            }
+          }
+        }
+      }
       // send security-wifi-config
-      // get NVCN
+      final wifiConfigResponse =
+          ScpMessageSender.sendWifiConfig(device, ssid, wifiPassword);
       // send security-restart
+      final restartResponse = ScpMessageSender.sendRestart(device);
       // move device from new devices to known devices
+      if (restartResponse != null) {
+        this.knownDevices.add(device);
+        //print all device info
+        print(device.toString());
+      }
     });
+
+    if (jsonExport) {
+      //export all known devices to JSON
+    }
   }
 }

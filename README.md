@@ -1,24 +1,17 @@
 Secure Control Protocol Client Library written in Dart
 
-Usage:
+To only discovers devices:
 
-`-d <base64 key> <base64 nvcn> <base64 text> <base64 mac>` for decryption
-`-e <key> <nvcn> <text>` for encryption
-`-s <IP of target> <key> <nvcn> <text>` to send to device
+`dart ./bin/scp_client discover -i <IP address from the to be scanned subnet> -m <Subnet Mask in Prefix notation>`
 
+To discover devices and afterwards provision them:
 
-`dart ./bin/scp_client discover`
+`dart ./bin/scp_client provision -i <IP address from the to be scanned subnet> -m <Subnet Mask in Prefix notation> -s <SSID of target Wifi> -p <Password of target Wifi> -j`
 
-`dart ./bin/scp_client provision`
-
-i
-m
-s
-p
-j
-
-Examples:
-
-`dart .\secure_control_protocol.dart -s 192.168.2.122 01234567890123456789012345678901 012345678901 HelloWorldTest`
-`dart .\secure_control_protocol.dart -s 192.168.2.122 01234567890123456789012345678901 012345678901 ThisIsAVeryLooooooooooooooooooooongTestString1234567890`
-`dart .\secure_control_protocol.dart -e 01234567890123456789012345678901 012345678901 HelloWorldTest`
+| Parameter | Description                                                         |
+| --------- | ------------------------------------------------------------------- |
+| i         | IP address from the to be scanned subnet                            |
+| m         | Subnet Mask in Prefix notation                                      |
+| s         | SSID of target Wifi                                                 |
+| p         | Password of target Wifi                                             |
+| j         | Create JSON file containing all provisioned devices for further use |

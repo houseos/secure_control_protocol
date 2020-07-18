@@ -1,10 +1,21 @@
-Secure Control Protocol Dart Client Library
+Secure Control Protocol Client Library written in Dart
 
 Usage:
 
 `-d <base64 key> <base64 nvcn> <base64 text> <base64 mac>` for decryption
 `-e <key> <nvcn> <text>` for encryption
 `-s <IP of target> <key> <nvcn> <text>` to send to device
+
+
+`dart ./bin/scp_client discover`
+
+`dart ./bin/scp_client provision`
+
+i
+m
+s
+p
+j
 
 Examples:
 

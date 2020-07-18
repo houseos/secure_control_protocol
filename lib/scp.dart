@@ -71,26 +71,8 @@ class Scp {
     await newDevices.forEach((device) async {
       print('Provisioning device: ${device.deviceId}');
       // send security-pw-change
-      final newPasswordResponse =
-          await ScpMessageSender.sendNewPassword(device);
-      if (newPasswordResponse == null) {
-        print('failed to send new password');
-        return;
-      }
-      if (newPasswordResponse != null &&
-          newPasswordResponse.bodyBytes != null) {
-        if (newPasswordResponse.statusCode == 200) {
-          ScpResponseSetPassword parsedResponse =
-              ScpResponseParser.parseSetPasswordResponse(newPasswordResponse);
-          if (parsedResponse != null) {
-            if (parsedResponse.result == "success") {
-              print('Successfully set new password.');
-              device.currentPasswordNumber = int.parse(parsedResponse.currentPasswordNumber);
-              print(device.toString());
-            }
-          }
-        }
-      }
+      await ScpMessageSender.sendNewPassword(device);
+
       // send security-wifi-config
       final wifiConfigResponse =
           ScpMessageSender.sendWifiConfig(device, ssid, wifiPassword);

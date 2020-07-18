@@ -6,7 +6,7 @@ import 'package:secure_control_protocol/scp.dart';
 void main(List<String> args) async {
   //-d to decode and decrypt, first argument is key, second is nvcn, third is payload
 
-  var runner = CommandRunner('dart.exe .\secure_control_protocol.dart',
+  var runner = CommandRunner('dart.exe .\scp_client.dart',
       'Secure Control Protocol CLI Client');
 
   runner
@@ -26,9 +26,9 @@ class DiscoverCommand extends Command {
   DiscoverCommand() {
     argParser
       ..addOption(
-        'subnet',
-        abbr: 's',
-        help: 'The Subnet to be scanned.',
+        'ipaddress',
+        abbr: 'i',
+        help: 'IP address from the subnet to be scanned.',
         valueHelp: 'IPv4 Address (AAA.BBB.CCC.DDD)',
       )
       ..addOption(
@@ -40,8 +40,9 @@ class DiscoverCommand extends Command {
   }
 
   void run() async {
+    print('scp_client Discover');
     Scp scp = Scp.getInstance();
-    await scp.doDiscover(argResults['subnet'], argResults['mask']);
+    await scp.doDiscover(argResults['ipaddress'], argResults['mask']);
   }
 }
 
@@ -54,7 +55,7 @@ class ProvisionCommand extends Command {
       ..addOption(
         'ipaddress',
         abbr: 'i',
-        help: 'The Subnet to be scanned.',
+        help: 'IP address from the subnet to be scanned.',
         valueHelp: 'IPv4 Address (AAA.BBB.CCC.DDD)',
       )
       ..addOption(
@@ -84,6 +85,7 @@ class ProvisionCommand extends Command {
   }
 
   void run() async {
+    print('scp_client Provision');
     Scp scp = Scp.getInstance();
     await scp.doDiscover(argResults['ipaddress'], argResults['mask']);
     Future.delayed(

@@ -11,10 +11,23 @@ class ScpCrypto {
   static final Random _random = Random.secure();
 
   Future<String> decodeThenDecrypt(
-      String key, String nonce, String base64Text) async {
-    List<int> decodedKey = base64.decode(key);
-    List<int> decodedNonce = base64.decode(nonce);
-    List<int> decodedText = base64.decode(base64Text);
+      String key, String base64nonce, String base64mac, String base64Text, int payloadLength) async {
+        print('Nonce: $base64nonce');
+        print('base64mac: $base64mac');
+        print('base64Text: $base64Text');
+    List<int> decodedKey = utf8.encode(key);
+    List<int> decodedNonce = base64.decode(base64nonce);
+    List<int> decodedText = List<int>();
+    print('Decoded base64Text: ${base64.decode(base64Text)}');
+    print('Decoded base64mac: ${base64.decode(base64mac)}');
+    decodedText.addAll(base64.decode(base64Text));
+    print('Text length: ${decodedText.length}');
+    print('Text length: $payloadLength');
+    decodedText.addAll(base64.decode(base64mac));
+    while(decodedText.length <= payloadLength){
+      decodedText.add(0);
+    }
+    print('Decoded combined: $decodedText');
     return await decryptMessage(decodedKey, decodedNonce, decodedText);
   }
 

@@ -70,25 +70,25 @@ class ScpResponseSetPassword{
   String deviceId;
   String currentPasswordNumber;
   String result;
-  String hmac;
 
-  ScpResponseSetPassword({this.deviceId, this.currentPasswordNumber, this.result, this.hmac});
+  ScpResponseSetPassword({this.deviceId, this.currentPasswordNumber, this.result});
 
-  factory ScpResponseSetPassword.fromJson(var json){
-    if (json['type'] == type) {
+  static Future<ScpResponseSetPassword> fromJson(var json, String password) async {
+    String payload = json['payload'];
+    int payloadLength = int.parse(json['payloadLength']);
+    String nonce = json['nonce'];
+    String mac = json['mac'];
+
+    // decrypt message
+    String decrypted = await ScpCrypto().decodeThenDecrypt(password, nonce, mac,payload, payloadLength);
+    var decryptedJson = json.decode(decrypted);
+    if (decryptedJson['type'] == type) {
       ScpResponseSetPassword setPasswordResponse = ScpResponseSetPassword(
-        deviceId: json['deviceId'],
-        currentPasswordNumber: json['currentPasswordNumber'],
-        result: json['result'],
-        hmac: json['hmac'],
-      );
-
-      // Check hmac before additional processing
-      if (ScpCrypto().verifyHMAC(
-          '${ScpResponseDiscover.type}${setPasswordResponse.deviceId}${setPasswordResponse.currentPasswordNumber}${setPasswordResponse.result}',
-          setPasswordResponse.hmac));{
-        return setPasswordResponse;
-      }
+        deviceId: decryptedJson['deviceId'],
+        currentPasswordNumber: decryptedJson['currentPasswordNumber'],
+        result: decryptedJson['result'],
+      );  
+      return setPasswordResponse;
     }
     return null;
   }
@@ -104,8 +104,8 @@ class ScpResponseParser {
     return ScpResponseFetchNvcn.fromJson(
         json.decode(utf8.decode(response.bodyBytes)));
   }
-  static ScpResponseSetPassword parseSetPasswordResponse(var response) {
-    return ScpResponseSetPassword.fromJson(
-        json.decode(utf8.decode(response.bodyBytes)));
+  static Future<ScpResponseSetPassword> parseSetPasswordResponse(var response, String password) async {
+    return await ScpResponseSetPassword.fromJson(
+        json.decode(utf8.decode(response.bodyBytes)), password);
   }
 }

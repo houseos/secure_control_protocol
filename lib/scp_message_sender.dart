@@ -1,6 +1,3 @@
-import 'dart:ffi';
-
-import 'package:cryptography/cryptography.dart';
 import 'package:http/http.dart' as http;
 import 'package:secure_control_protocol/scp_crypto.dart';
 import 'package:secure_control_protocol/scp_device.dart';
@@ -8,6 +5,7 @@ import 'package:secure_control_protocol/scp_response_parser.dart';
 import 'package:secure_control_protocol/scp_status.dart';
 
 class ScpMessageSender {
+
   static sendDiscoverHello(String ip) async {
     return await http
         .get('http://$ip/secure-control/discover-hello?payload=discover-hello')
@@ -49,7 +47,7 @@ class ScpMessageSender {
     // generate new password
     String password = ScpCrypto().generatePassword();
     //send new password
-    // NVCN:deviceID:security-pw-change:newpassword
+    // <salt> + ":" + "security-pw-change" + ":" + <device ID> + ":" + <NVCN> + ":" + <new password>
     String salt = "1";
     String payload =
         "$salt:security-pw-change:${device.deviceId}:$nvcn:$password";
@@ -62,6 +60,7 @@ class ScpMessageSender {
     query += "&mac=${urlEncode(scpJson.encryptedPayload.base64Mac)}";
 
     // await response
+    print('Setting new password');
     var newPasswordResponse = await http
         .get('http://${device.ipAddress}/secure-control?$query')
         .timeout(const Duration(seconds: 3))
@@ -91,10 +90,62 @@ class ScpMessageSender {
     return ScpStatus.RESULT_ERROR;
   }
 
-  static sendWifiConfig(ScpDevice device, String ssid, String password) {
+  static sendWifiConfig(ScpDevice device, String ssid, String preSharedKey) async{
     // get NVCN
+    print('Fetching NVCN');
+    var nvcnResponse = await fetchNVCN(device);
+    if (nvcnResponse == null) {
+      return ScpStatus.RESULT_ERROR;
+    }
+    if (nvcnResponse.statusCode != 200 || nvcnResponse.bodyBytes == 0) {
+      return ScpStatus.RESULT_ERROR;
+    }
+    ScpResponseFetchNvcn parsedNvcnResponse =
+        ScpResponseParser.parseNvcnResponse(nvcnResponse);
 
-    //send new password
+    String nvcn = parsedNvcnResponse.nvcn;
+
+    //send new wifi credentials
+    // <salt> + ":" + "security-wifi-config" + ":" + <device ID> + ":" + <NVCN> + ":" + <ssid> + ":" + <pre-shared-key>
+    String salt = "1";
+    String payload =
+        "$salt:security-wifi-config:${device.deviceId}:$nvcn:$ssid:$preSharedKey";
+    ScpJson scpJson =
+        await ScpCrypto().encryptThenEncode(device.knownPassword, payload);
+
+    String query = "nonce=${urlEncode(scpJson.encryptedPayload.base64Nonce)}";
+    query += "&payload=${urlEncode(scpJson.encryptedPayload.base64Data)}";
+    query += "&payloadLength=${scpJson.encryptedPayload.dataLength}";
+    query += "&mac=${urlEncode(scpJson.encryptedPayload.base64Mac)}";
+
+    // await response
+    print('Setting new wifi credentials');
+    var setWifiCredentialsResponse = await http
+        .get('http://${device.ipAddress}/secure-control?$query')
+        .timeout(const Duration(seconds: 30))
+        .catchError((e) {});
+
+    if (setWifiCredentialsResponse == null) {
+      print('failed to send Wifi credentials');
+      return ScpStatus.RESULT_ERROR;
+    }
+    if (setWifiCredentialsResponse != null && setWifiCredentialsResponse.bodyBytes != null) {
+      if (setWifiCredentialsResponse.statusCode == 200) {
+        ScpResponseSetWifiConfig parsedResponse =
+            await ScpResponseParser.parseSetWifiConfigResponse(
+                setWifiCredentialsResponse, device.knownPassword);
+        if (parsedResponse != null) {
+          if (parsedResponse.result == ScpStatus.RESULT_SUCCESS) {
+            print('Successfully set Wifi config, ready for restart.');
+            return ScpStatus.RESULT_DONE;
+          } else if (parsedResponse.result == ScpStatus.RESULT_ERROR){
+            print('Failed setting Wifi config.');
+            return ScpStatus.RESULT_ERROR;
+          }
+        }
+      }
+    }
+    return ScpStatus.RESULT_ERROR;
   }
 
   static sendRestart(ScpDevice device) {}

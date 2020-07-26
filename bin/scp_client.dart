@@ -88,9 +88,10 @@ class ProvisionCommand extends Command {
     print('scp_client Provision');
     Scp scp = Scp.getInstance();
     await scp.doDiscover(argResults['ipaddress'], argResults['mask']);
+    print('doDiscover returned with ${scp.newDevices.length} devices');
     Future.delayed(
       Duration(
-        seconds: 5,
+        seconds: 20,
       ),
     ).then(
       (value) => scp.doProvisioning(

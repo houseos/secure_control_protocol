@@ -2,13 +2,14 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography/utils.dart';
-import 'package:test/test.dart';
+import 'package:cryptography/cryptography.dart' as cryptography;
+import 'package:web3dart/crypto.dart';
 
 class ScpCrypto {
 
   static final Random _random = Random.secure();
+
+  static final String defaultPassword = '01234567890123456789012345678901';
 
   Future<String> decodeThenDecrypt(
       String key, String base64nonce, String base64mac, String base64Text, int payloadLength) async {
@@ -34,13 +35,13 @@ class ScpCrypto {
   Future<String> decryptMessage(
       List<int> key, List<int> nonce, List<int> encryptedText) async {
     // Encode Key
-    SecretKey secretKey = SecretKey(key);
+    cryptography.SecretKey secretKey = cryptography.SecretKey(key);
     //Encode nonce
-    Nonce encodedNonce = Nonce(nonce);
+    cryptography.Nonce encodedNonce = cryptography.Nonce(nonce);
     //Encode encrypted text
     List<int> cipherText = encryptedText;
     // Decrypt
-    final clearText = await chacha20Poly1305Aead
+    final clearText = await cryptography.chacha20Poly1305Aead
         .decrypt(
       cipherText,
       secretKey: secretKey,
@@ -66,38 +67,43 @@ class ScpCrypto {
   Future<EncryptedPayload> encryptMessage(
       String key, String plainText) async {
     // Encode Key
-    SecretKey secretKey = SecretKey(utf8.encode(key));
+    cryptography.SecretKey secretKey = cryptography.SecretKey(utf8.encode(key));
     //Encode encrypted text
     List<int> clearText = utf8.encode(plainText);
     // Encrypt
-    Nonce nonce = Nonce.randomBytes(12);
-    final encryptedText = await chacha20Poly1305Aead.encrypt(
+    cryptography.Nonce nonce = cryptography.Nonce.randomBytes(12);
+    final encryptedText = await cryptography.chacha20Poly1305Aead.encrypt(
       clearText,
       secretKey: secretKey,
       nonce: nonce,
     );
 
     String base64Data =
-        base64Encode(chacha20Poly1305Aead.getDataInCipherText(encryptedText));
+        base64Encode(cryptography.chacha20Poly1305Aead.getDataInCipherText(encryptedText));
     String base64Mac = base64Encode(
-        chacha20Poly1305Aead.getMacInCipherText(encryptedText).bytes);
+        cryptography.chacha20Poly1305Aead.getMacInCipherText(encryptedText).bytes);
 
     return EncryptedPayload(
       base64Data: base64Data,
       dataLength:
-          chacha20Poly1305Aead.getDataInCipherText(encryptedText).length,
+          cryptography.chacha20Poly1305Aead.getDataInCipherText(encryptedText).length,
       base64Mac: base64Mac,
       base64DataWithMac: base64Encode(encryptedText),
       base64Nonce: base64Encode(nonce.bytes),
     );
   }
 
-  bool verifyHMAC(String content, String hmac) {
+  bool verifyHMAC(String content, String hmac, String password) {
     //for now only with default password later the password stored for the device has to be extracted.
-    SecretKey secretKey =
-        SecretKey(utf8.encode('01234567890123456789012345678901'));
+    cryptography.SecretKey secretKey;
+    if(password == null){
+      secretKey = cryptography.SecretKey(utf8.encode(defaultPassword));
+    } else {
+      secretKey = cryptography.SecretKey(utf8.encode(password));
+    }
+     
     var input = utf8.encode(content);
-    final sink = Hmac(sha512).newSink(secretKey: secretKey);
+    final sink = cryptography.Hmac(cryptography.sha512).newSink(secretKey: secretKey);
     sink.add(input);
     sink.close();
     var mac = sink.mac;
@@ -119,6 +125,8 @@ class EncryptedPayload {
 
   EncryptedPayload(
       {this.base64Data, this.dataLength, this.base64Mac, this.base64DataWithMac, this.base64Nonce});
+
+      
 }
 
 class ScpJson {

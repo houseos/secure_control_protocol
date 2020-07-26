@@ -1,6 +1,4 @@
 import 'dart:convert';
-
-import 'package:http/http.dart';
 import 'package:secure_control_protocol/scp_crypto.dart';
 
 class ScpResponseDiscover {
@@ -26,7 +24,8 @@ class ScpResponseDiscover {
       // Check hmac before additional processing
       if (ScpCrypto().verifyHMAC(
           '${ScpResponseDiscover.type}${discoverResponse.deviceId}${discoverResponse.deviceType}${discoverResponse.currentPasswordNumber}',
-          discoverResponse.hmac)) {
+          discoverResponse.hmac,
+          null)) {
         return discoverResponse;
       }
     }
@@ -35,60 +34,104 @@ class ScpResponseDiscover {
   }
 }
 
-class ScpResponseFetchNvcn{
-
+class ScpResponseFetchNvcn {
   static const String type = "security-fetch-nvcn";
   String deviceId;
   String nvcn;
-  String hmac;
 
-  ScpResponseFetchNvcn({this.deviceId, this.nvcn, this.hmac});
+  ScpResponseFetchNvcn({this.deviceId, this.nvcn});
 
-  factory ScpResponseFetchNvcn.fromJson(var json){
+  factory ScpResponseFetchNvcn.fromJson(var json) {
     if (json['type'] == type) {
+      if (json['deviceId'] == null ||
+          json['deviceId'] == '' ||
+          json['nvcn'] == null ||
+          json['nvcn'] == '') {
+        return null;
+      }
+
       ScpResponseFetchNvcn nvcnResponse = ScpResponseFetchNvcn(
         deviceId: json['deviceId'],
         nvcn: json['nvcn'],
-        hmac: json['hmac'],
       );
 
-      // Check hmac before additional processing
-      if (ScpCrypto().verifyHMAC(
-          '${ScpResponseDiscover.type}${nvcnResponse.deviceId}${nvcnResponse.nvcn}',
-          nvcnResponse.hmac));{
-        return nvcnResponse;
+      return nvcnResponse;
+    }
+    return null;
+  }
+}
+
+class ScpResponseSetPassword {
+  static const String type = "security-pw-change";
+  String deviceId;
+  String currentPasswordNumber;
+  String result;
+
+  ScpResponseSetPassword(
+      {this.deviceId, this.currentPasswordNumber, this.result});
+
+  static Future<ScpResponseSetPassword> fromJson(
+      var inputJson, String password) async {
+    if (inputJson['response'] == null ||
+        inputJson['response'] == '' ||
+        inputJson['hmac'] == null ||
+        inputJson['hmac'] == '') {
+      print(
+          'ResponseSetPassword, response: ${inputJson['response']}, hmac: ${inputJson['hmac']}');
+      return null;
+    }
+    String response = inputJson['response'];
+    String hmac = inputJson['hmac'];
+
+    // Check hmac before additional processing
+    if (ScpCrypto().verifyHMAC(response, hmac, password)) {
+      var decodedPayload = base64Decode(response);
+      var decodedJson = json.decode(utf8.decode(decodedPayload));
+      if (decodedJson['type'] == type) {
+        ScpResponseSetPassword setPasswordResponse = ScpResponseSetPassword(
+          deviceId: decodedJson['deviceId'],
+          currentPasswordNumber: decodedJson['currentPasswordNumber'],
+          result: decodedJson['result'],
+        );
+        return setPasswordResponse;
       }
     }
     return null;
   }
 }
 
-
-class ScpResponseSetPassword{
-
-  static const String type = "security-pw-change";
+class ScpResponseSetWifiConfig {
+  static const String type = "security-wifi-config";
   String deviceId;
-  String currentPasswordNumber;
   String result;
 
-  ScpResponseSetPassword({this.deviceId, this.currentPasswordNumber, this.result});
+  ScpResponseSetWifiConfig(
+      {this.deviceId, this.result});
 
-  static Future<ScpResponseSetPassword> fromJson(var json, String password) async {
-    String payload = json['payload'];
-    int payloadLength = int.parse(json['payloadLength']);
-    String nonce = json['nonce'];
-    String mac = json['mac'];
+  static Future<ScpResponseSetWifiConfig> fromJson(
+      var inputJson, String password) async {
+    if (inputJson['response'] == null ||
+        inputJson['response'] == '' ||
+        inputJson['hmac'] == null ||
+        inputJson['hmac'] == '') {
+      print(
+          'ResponseSetPassword, response: ${inputJson['response']}, hmac: ${inputJson['hmac']}');
+      return null;
+    }
+    String response = inputJson['response'];
+    String hmac = inputJson['hmac'];
 
-    // decrypt message
-    String decrypted = await ScpCrypto().decodeThenDecrypt(password, nonce, mac,payload, payloadLength);
-    var decryptedJson = json.decode(decrypted);
-    if (decryptedJson['type'] == type) {
-      ScpResponseSetPassword setPasswordResponse = ScpResponseSetPassword(
-        deviceId: decryptedJson['deviceId'],
-        currentPasswordNumber: decryptedJson['currentPasswordNumber'],
-        result: decryptedJson['result'],
-      );  
-      return setPasswordResponse;
+    // Check hmac before additional processing
+    if (ScpCrypto().verifyHMAC(response, hmac, password)) {
+      var decodedPayload = base64Decode(response);
+      var decodedJson = json.decode(utf8.decode(decodedPayload));
+      if (decodedJson['type'] == type) {
+        ScpResponseSetWifiConfig setWifiConfigResponse = ScpResponseSetWifiConfig(
+          deviceId: decodedJson['deviceId'],
+          result: decodedJson['result'],
+        );
+        return setWifiConfigResponse;
+      }
     }
     return null;
   }
@@ -99,13 +142,21 @@ class ScpResponseParser {
     return ScpResponseDiscover.fromJson(
         json.decode(utf8.decode(response.bodyBytes)));
   }
-  
+
   static ScpResponseFetchNvcn parseNvcnResponse(var response) {
     return ScpResponseFetchNvcn.fromJson(
         json.decode(utf8.decode(response.bodyBytes)));
   }
-  static Future<ScpResponseSetPassword> parseSetPasswordResponse(var response, String password) async {
+
+  static Future<ScpResponseSetPassword> parseSetPasswordResponse(
+      var response, String password) async {
     return await ScpResponseSetPassword.fromJson(
+        json.decode(utf8.decode(response.bodyBytes)), password);
+  }
+
+  static Future<ScpResponseSetWifiConfig> parseSetWifiConfigResponse(
+      var response, String password) async {
+    return await ScpResponseSetWifiConfig.fromJson(
         json.decode(utf8.decode(response.bodyBytes)), password);
   }
 }

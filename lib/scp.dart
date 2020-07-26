@@ -67,6 +67,12 @@ class Scp {
   }
 
   void doProvisioning(String ssid, String wifiPassword, bool jsonExport) async {
+
+    if(ssid == null || ssid == "" || wifiPassword == null || wifiPassword == ""){
+      print("provisioning without ssid or wifiPassword not possible.");
+      return;
+    }
+
     // for each new device
     await newDevices.forEach((device) async {
       print('Provisioning device: ${device.deviceId}');

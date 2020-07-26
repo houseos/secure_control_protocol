@@ -1,6 +1,6 @@
 name: secure_control_protocol
 description: Dart client library for secure-control-protocol devices (see https://github.com/HouseOS/secure-control-protocol)
-version: 0.0.1
+version: 0.0.2
 repository: https://github.com/HouseOS/secure_control_protocol
 issue_tracker: https://github.com/HouseOS/secure_control_protocol/issues
 documentation: https://github.com/HouseOS/secure_control_protocol/blob/master/README.md
@@ -16,3 +16,4 @@ dependencies:
   cryptography: ^1.0.4
   test: ^1.9.1
   collection: ^1.14.12
+  web3dart: ^1.2.3

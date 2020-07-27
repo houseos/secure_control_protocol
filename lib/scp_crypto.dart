@@ -94,7 +94,6 @@ class ScpCrypto {
   }
 
   bool verifyHMAC(String content, String hmac, String password) {
-    //for now only with default password later the password stored for the device has to be extracted.
     cryptography.SecretKey secretKey;
     if(password == null){
       secretKey = cryptography.SecretKey(utf8.encode(defaultPassword));

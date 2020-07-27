@@ -5,7 +5,6 @@ import 'package:secure_control_protocol/scp_response_parser.dart';
 import 'package:secure_control_protocol/scp_status.dart';
 
 class ScpMessageSender {
-
   static sendDiscoverHello(String ip) async {
     return await http
         .get('http://$ip/secure-control/discover-hello?payload=discover-hello')
@@ -81,6 +80,7 @@ class ScpMessageSender {
             device.knownPassword = password;
             device.currentPasswordNumber =
                 int.parse(parsedResponse.currentPasswordNumber);
+            device.isDefaultPasswordSet = false;
             print(device.toString());
             return ScpStatus.RESULT_DONE;
           }
@@ -90,7 +90,8 @@ class ScpMessageSender {
     return ScpStatus.RESULT_ERROR;
   }
 
-  static sendWifiConfig(ScpDevice device, String ssid, String preSharedKey) async{
+  static sendWifiConfig(
+      ScpDevice device, String ssid, String preSharedKey) async {
     // get NVCN
     print('Fetching NVCN');
     var nvcnResponse = await fetchNVCN(device);
@@ -129,7 +130,8 @@ class ScpMessageSender {
       print('failed to send Wifi credentials');
       return ScpStatus.RESULT_ERROR;
     }
-    if (setWifiCredentialsResponse != null && setWifiCredentialsResponse.bodyBytes != null) {
+    if (setWifiCredentialsResponse != null &&
+        setWifiCredentialsResponse.bodyBytes != null) {
       if (setWifiCredentialsResponse.statusCode == 200) {
         ScpResponseSetWifiConfig parsedResponse =
             await ScpResponseParser.parseSetWifiConfigResponse(
@@ -138,7 +140,7 @@ class ScpMessageSender {
           if (parsedResponse.result == ScpStatus.RESULT_SUCCESS) {
             print('Successfully set Wifi config, ready for restart.');
             return ScpStatus.RESULT_DONE;
-          } else if (parsedResponse.result == ScpStatus.RESULT_ERROR){
+          } else if (parsedResponse.result == ScpStatus.RESULT_ERROR) {
             print('Failed setting Wifi config.');
             return ScpStatus.RESULT_ERROR;
           }
@@ -148,9 +150,126 @@ class ScpMessageSender {
     return ScpStatus.RESULT_ERROR;
   }
 
-  static sendRestart(ScpDevice device) {}
+  static sendRestart(ScpDevice device) async {
+    // get NVCN
+    print('Fetching NVCN');
+    var nvcnResponse = await fetchNVCN(device);
+    if (nvcnResponse == null) {
+      return ScpStatus.RESULT_ERROR;
+    }
+    if (nvcnResponse.statusCode != 200 || nvcnResponse.bodyBytes == 0) {
+      return ScpStatus.RESULT_ERROR;
+    }
+    ScpResponseFetchNvcn parsedNvcnResponse =
+        ScpResponseParser.parseNvcnResponse(nvcnResponse);
 
-  static sendControl(ScpDevice device, String action) {}
+    String nvcn = parsedNvcnResponse.nvcn;
+
+    //send new wifi credentials
+    // <salt> + ":" + "security-wifi-config" + ":" + <device ID> + ":" + <NVCN>
+    String salt = "1";
+    String payload = "$salt:security-restart:${device.deviceId}:$nvcn";
+    ScpJson scpJson =
+        await ScpCrypto().encryptThenEncode(device.knownPassword, payload);
+
+    String query = "nonce=${urlEncode(scpJson.encryptedPayload.base64Nonce)}";
+    query += "&payload=${urlEncode(scpJson.encryptedPayload.base64Data)}";
+    query += "&payloadLength=${scpJson.encryptedPayload.dataLength}";
+    query += "&mac=${urlEncode(scpJson.encryptedPayload.base64Mac)}";
+
+    // await response
+    print('Restarting device.');
+    var restartDeviceResponse = await http
+        .get('http://${device.ipAddress}/secure-control?$query')
+        .timeout(const Duration(seconds: 30))
+        .catchError((e) {});
+
+    if (restartDeviceResponse == null) {
+      print('failed to restart device');
+      return ScpStatus.RESULT_ERROR;
+    }
+    if (restartDeviceResponse != null &&
+        restartDeviceResponse.bodyBytes != null) {
+      if (restartDeviceResponse.statusCode == 200) {
+        ScpResponseRestart parsedResponse =
+            await ScpResponseParser.parseRestartDeviceResponse(
+                restartDeviceResponse, device.knownPassword);
+        if (parsedResponse != null) {
+          if (parsedResponse.result == ScpStatus.RESULT_SUCCESS) {
+            print('Successfully restarted device.');
+            return ScpStatus.RESULT_DONE;
+          } else if (parsedResponse.result == ScpStatus.RESULT_ERROR) {
+            print('failed to restart device');
+            return ScpStatus.RESULT_ERROR;
+          }
+        }
+      }
+    }
+    return ScpStatus.RESULT_ERROR;
+  }
+
+  static sendControl(ScpDevice device, String action) async {
+
+    // get NVCN
+    print('Fetching NVCN');
+    var nvcnResponse = await fetchNVCN(device);
+    if (nvcnResponse == null) {
+      return ScpStatus.RESULT_ERROR;
+    }
+    if (nvcnResponse.statusCode != 200 || nvcnResponse.bodyBytes == 0) {
+      return ScpStatus.RESULT_ERROR;
+    }
+    ScpResponseFetchNvcn parsedNvcnResponse =
+        ScpResponseParser.parseNvcnResponse(nvcnResponse);
+
+    String nvcn = parsedNvcnResponse.nvcn;
+
+    //send control command
+    // <salt> + ":" + "control" + ":" + <device ID> + ":" + <NVCN> + ":" + action
+    String salt = "1";
+    String payload =
+        "$salt:control:${device.deviceId}:$nvcn:$action";
+    ScpJson scpJson =
+        await ScpCrypto().encryptThenEncode(device.knownPassword, payload);
+
+    String query = "nonce=${urlEncode(scpJson.encryptedPayload.base64Nonce)}";
+    query += "&payload=${urlEncode(scpJson.encryptedPayload.base64Data)}";
+    query += "&payloadLength=${scpJson.encryptedPayload.dataLength}";
+    query += "&mac=${urlEncode(scpJson.encryptedPayload.base64Mac)}";
+
+    // await response
+    print('Send control command: $action');
+    var controlResponse = await http
+        .get('http://${device.ipAddress}/secure-control?$query')
+        .timeout(const Duration(seconds: 30))
+        .catchError((e) {});
+
+    if (controlResponse == null) {
+      print('failed to send control command');
+      return ScpStatus.RESULT_ERROR;
+    }
+    if (controlResponse != null &&
+        controlResponse.bodyBytes != null) {
+      if (controlResponse.statusCode == 200) {
+        ScpResponseControl parsedResponse =
+            await ScpResponseParser.parseControlResponse(
+                controlResponse, device.knownPassword);
+        if (parsedResponse != null) {
+          if (parsedResponse.result == ScpStatus.RESULT_SUCCESS && action == parsedResponse.action) {
+            print('Successfully controlled device.');
+            return ScpStatus.RESULT_SUCCESS;
+          } else if (parsedResponse.result == ScpStatus.RESULT_ERROR || action != parsedResponse.action) {
+            print('Failed controlling device.');
+            return ScpStatus.RESULT_ERROR;
+          }
+        }
+      } else {
+        print('Status code not 200: ${controlResponse.statusCode}');
+      }
+    }
+    return ScpStatus.RESULT_ERROR;
+
+  }
 
   static String urlEncode(String s) {
     return Uri.encodeQueryComponent(s);

@@ -1,3 +1,8 @@
+# secure_control_protocol
+# gitignore
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2020 Benjamin Schilling
+
 # See https://www.dartlang.org/guides/libraries/private-files
 
 # Files and directories created by pub

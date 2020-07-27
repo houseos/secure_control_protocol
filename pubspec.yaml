@@ -1,3 +1,8 @@
+# secure_control_protocol
+# This is the pubspec file specifying all dependencies
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2020 Benjamin Schilling
+
 name: secure_control_protocol
 description: Dart client library for secure-control-protocol devices (see https://github.com/HouseOS/secure-control-protocol)
 version: 0.0.2

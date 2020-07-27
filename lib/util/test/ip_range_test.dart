@@ -1,3 +1,10 @@
+/*
+secure_control_protocol
+IPRange Tests
+SPDX-License-Identifier: GPL-3.0-only
+Copyright (C) 2020 Benjamin Schilling
+*/
+
 import 'package:secure_control_protocol/util/ip_range.dart';
 import 'package:test/test.dart';
 

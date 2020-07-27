@@ -1,3 +1,10 @@
+/*
+secure_control_protocol
+ScpCrypto Class
+SPDX-License-Identifier: GPL-3.0-only
+Copyright (C) 2020 Benjamin Schilling
+*/
+
 import 'dart:convert';
 import 'dart:math';
 

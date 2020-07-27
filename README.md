@@ -27,3 +27,8 @@ Now the update of the IP address for the provisioned device has to occur.
 After the update the devices can be controlled by addressing them with their device ID. All required data is taken from the JSON with the known devices.
 
 `dart ./bin/scp_client control -c <action> -d <device ID> -j <path to JSON with known devices>`
+
+## License
+SPDX-License-Identifier: GPL-3.0-only
+
+The full version of the license can be found in LICENSE.

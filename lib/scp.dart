@@ -1,5 +1,11 @@
+/*
+secure_control_protocol
+Scp Main Class
+SPDX-License-Identifier: GPL-3.0-only
+Copyright (C) 2020 Benjamin Schilling
+*/
+
 import 'dart:async';
-import 'dart:convert';
 import 'package:secure_control_protocol/scp_response_parser.dart';
 import 'package:secure_control_protocol/scp_status.dart';
 import 'package:secure_control_protocol/util/ip_range.dart';

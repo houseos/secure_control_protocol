@@ -1,3 +1,10 @@
+/*
+secure_control_protocol
+ScpDevice Class
+SPDX-License-Identifier: GPL-3.0-only
+Copyright (C) 2020 Benjamin Schilling
+*/
+
 class ScpDevice {
   String deviceType;
   String deviceId;

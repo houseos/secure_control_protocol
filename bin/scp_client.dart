@@ -1,3 +1,10 @@
+/*
+secure_control_protocol
+SCP CLI Client
+SPDX-License-Identifier: GPL-3.0-only
+Copyright (C) 2020 Benjamin Schilling
+*/
+
 import 'dart:io';
 import 'dart:convert';
 

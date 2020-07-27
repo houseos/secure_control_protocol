@@ -1,3 +1,10 @@
+/*
+secure_control_protocol
+ScpMessageSender Class
+SPDX-License-Identifier: GPL-3.0-only
+Copyright (C) 2020 Benjamin Schilling
+*/
+
 import 'package:http/http.dart' as http;
 import 'package:secure_control_protocol/scp_crypto.dart';
 import 'package:secure_control_protocol/scp_device.dart';

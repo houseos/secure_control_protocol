@@ -1,3 +1,10 @@
+/*
+secure_control_protocol
+IPRange Util Class
+SPDX-License-Identifier: GPL-3.0-only
+Copyright (C) 2020 Benjamin Schilling
+*/
+
 import 'dart:math';
 
 class IPRange {

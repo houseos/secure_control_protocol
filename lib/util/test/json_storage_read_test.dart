@@ -1,4 +1,10 @@
-import 'package:secure_control_protocol/scp_device.dart';
+/*
+secure_control_protocol
+JsonStorage Read Tests
+SPDX-License-Identifier: GPL-3.0-only
+Copyright (C) 2020 Benjamin Schilling
+*/
+
 import 'package:secure_control_protocol/util/json_storage.dart';
 import 'package:test/test.dart';
 import 'dart:convert';

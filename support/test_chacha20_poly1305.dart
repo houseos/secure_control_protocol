@@ -1,3 +1,10 @@
+/*
+secure_control_protocol
+Test file for chacha20poly1305
+SPDX-License-Identifier: GPL-3.0-only
+Copyright (C) 2020 Benjamin Schilling
+*/
+
 import 'dart:io';
 
 import 'package:args/command_runner.dart';

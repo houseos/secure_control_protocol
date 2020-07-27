@@ -26,3 +26,4 @@ doc/api/
 *.js.map
 ./*.dart
 devices.json
+provisioned.json

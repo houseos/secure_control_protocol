@@ -22,6 +22,7 @@ void main(List<String> args) async {
     ..addCommand(ProvisionCommand())
     ..addCommand(UpdateCommand())
     ..addCommand(ControlCommand())
+    ..addCommand(ResetToDefaultCommand())
     ..run(args).catchError((error) {
       if (error is! UsageException) throw error;
       print(runner.usage);
@@ -104,6 +105,46 @@ class ProvisionCommand extends Command {
       argResults['password'],
       argResults['json'],
     );
+  }
+}
+
+class ResetToDefaultCommand extends Command {
+  final name = "reset";
+  final description = "Reset the selected device.";
+
+  ResetToDefaultCommand() {
+    argParser
+      ..addOption(
+        'deviceId',
+        abbr: 'd',
+        help: 'The ID of the device to control.',
+        valueHelp: '0 - 32',
+      )
+      ..addOption(
+        'json',
+        abbr: 'j',
+        help: 'Path to the JSON file containing all known devices.',
+        valueHelp: 'Path in the filesystem.',
+      );
+  }
+
+  void run() async {
+    print('scp_client reset');
+    Scp scp = Scp.getInstance();
+
+    String filePath = argResults['json'];
+    if (await File('$filePath').exists()) {
+      final file = await File('$filePath');
+      // Read the file
+      String contents = await file.readAsString();
+      var jsonString = json.decode(contents);
+      scp.knownDevicesFromJson(jsonString);
+      await scp.resetToDefault(
+        argResults['deviceId'],
+      );
+    } else {
+      print('JSON file does not exist.');
+    }
   }
 }
 

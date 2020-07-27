@@ -16,7 +16,7 @@ class ScpMessageSender {
     return await http
         .get('http://$ip/secure-control/discover-hello?payload=discover-hello')
         .timeout(const Duration(seconds: 3))
-        .catchError((e) {});
+        .catchError((e) {print(e);});
   }
 
   static fetchNVCN(ScpDevice device) async {
@@ -33,7 +33,7 @@ class ScpMessageSender {
     return await http
         .get('http://${device.ipAddress}/secure-control?$query')
         .timeout(const Duration(seconds: 3))
-        .catchError((e) {});
+        .catchError((e) {print(e);});
   }
 
   static sendNewPassword(ScpDevice device) async {
@@ -70,7 +70,7 @@ class ScpMessageSender {
     var newPasswordResponse = await http
         .get('http://${device.ipAddress}/secure-control?$query')
         .timeout(const Duration(seconds: 3))
-        .catchError((e) {});
+        .catchError((e) {print(e);});
 
     if (newPasswordResponse == null) {
       print('failed to send new password');
@@ -131,7 +131,7 @@ class ScpMessageSender {
     var setWifiCredentialsResponse = await http
         .get('http://${device.ipAddress}/secure-control?$query')
         .timeout(const Duration(seconds: 30))
-        .catchError((e) {});
+        .catchError((e) {print('$e');});
 
     if (setWifiCredentialsResponse == null) {
       print('failed to send Wifi credentials');
@@ -189,7 +189,7 @@ class ScpMessageSender {
     var restartDeviceResponse = await http
         .get('http://${device.ipAddress}/secure-control?$query')
         .timeout(const Duration(seconds: 30))
-        .catchError((e) {});
+        .catchError((e) {print(e);});
 
     if (restartDeviceResponse == null) {
       print('failed to restart device');
@@ -213,6 +213,69 @@ class ScpMessageSender {
       }
     }
     return ScpStatus.RESULT_ERROR;
+  }
+
+  static sendResetToDefault(ScpDevice device) async {
+
+    // get NVCN
+    print('Fetching NVCN');
+    var nvcnResponse = await fetchNVCN(device);
+    if (nvcnResponse == null) {
+      return ScpStatus.RESULT_ERROR;
+    }
+    if (nvcnResponse.statusCode != 200 || nvcnResponse.bodyBytes == 0) {
+      return ScpStatus.RESULT_ERROR;
+    }
+    ScpResponseFetchNvcn parsedNvcnResponse =
+        ScpResponseParser.parseNvcnResponse(nvcnResponse);
+
+    String nvcn = parsedNvcnResponse.nvcn;
+
+    //send control command
+    // <salt> + ":" + "security-reset-to-default" + ":" + <device ID> + ":" + <NVCN>
+    String salt = "1";
+    String payload =
+        "$salt:security-reset-to-default:${device.deviceId}:$nvcn";
+    ScpJson scpJson =
+        await ScpCrypto().encryptThenEncode(device.knownPassword, payload);
+
+    String query = "nonce=${urlEncode(scpJson.encryptedPayload.base64Nonce)}";
+    query += "&payload=${urlEncode(scpJson.encryptedPayload.base64Data)}";
+    query += "&payloadLength=${scpJson.encryptedPayload.dataLength}";
+    query += "&mac=${urlEncode(scpJson.encryptedPayload.base64Mac)}";
+
+    // await response
+    print('Send reset to default message');
+    var resetToDefaultMessage = await http
+        .get('http://${device.ipAddress}/secure-control?$query')
+        .timeout(const Duration(seconds: 30))
+        .catchError((e) {print(e);});
+
+    if (resetToDefaultMessage == null) {
+      print('failed to send reset to default message');
+      return ScpStatus.RESULT_ERROR;
+    }
+    if (resetToDefaultMessage != null &&
+        resetToDefaultMessage.bodyBytes != null) {
+      if (resetToDefaultMessage.statusCode == 200) {
+        ScpResponseResetToDefault parsedResponse =
+            await ScpResponseParser.parseResetToDefault(
+                resetToDefaultMessage, device.knownPassword);
+        if (parsedResponse != null) {
+          if (parsedResponse.result == ScpStatus.RESULT_SUCCESS) {
+            print('Successfully reset the device to default.');
+            return ScpStatus.RESULT_SUCCESS;
+          } else if (parsedResponse.result == ScpStatus.RESULT_ERROR) {
+            print('Failed resetting the device to default.');
+            return ScpStatus.RESULT_ERROR;
+          }
+        }
+      } else {
+        print('Status code not 200: ${resetToDefaultMessage.statusCode}');
+      }
+    }
+    return ScpStatus.RESULT_ERROR;
+
   }
 
   static sendControl(ScpDevice device, String action) async {
@@ -249,7 +312,7 @@ class ScpMessageSender {
     var controlResponse = await http
         .get('http://${device.ipAddress}/secure-control?$query')
         .timeout(const Duration(seconds: 30))
-        .catchError((e) {});
+        .catchError((e) {print(e);});
 
     if (controlResponse == null) {
       print('failed to send control command');

@@ -145,6 +145,7 @@ class Scp {
       (List responses) => responses.forEach((response) async {
         if (response != null && response.bodyBytes != null) {
           if (response.statusCode == 200) {
+            print('Received discover response.');
             ScpResponseDiscover parsedResponse =
                 ScpResponseParser.parseDiscoverResponse(response, null);
             if (parsedResponse != null) {
@@ -235,6 +236,18 @@ class Scp {
       print('Successfully send control $command to $deviceId');
     } else {
       print('Failed to send control $command to $deviceId');
+    }
+  }
+
+  void resetToDefault(String deviceId) async {
+    print('do control for device: $deviceId');
+    final resetToDefaultResponse = await ScpMessageSender.sendResetToDefault(
+        knownDevices.firstWhere((element) => element.deviceId == deviceId));
+        print(resetToDefaultResponse);
+    if (resetToDefaultResponse != null && resetToDefaultResponse == ScpStatus.RESULT_SUCCESS) {
+      print('Successfully send reset to default to $deviceId');
+    } else {
+      print('Failed to send reset to default to $deviceId');
     }
   }
 }

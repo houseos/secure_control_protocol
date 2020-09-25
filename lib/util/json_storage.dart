@@ -30,6 +30,12 @@ class JsonStorage {
     file.writeAsString('$encoded', mode: FileMode.write);
   }
 
+  static void updateFromJson(String newJson, String path) async{
+    final file = await File('$path');
+    // Write the file
+    file.writeAsString('$newJson', mode: FileMode.write);
+  }
+
   static Future readJson(String path) async {
     if (await File('$path').exists()) {
       final file = await File('$path');

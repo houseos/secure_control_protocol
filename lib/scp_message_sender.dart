@@ -15,7 +15,7 @@ class ScpMessageSender {
   static sendDiscoverHello(String ip) async {
     return await http
         .get('http://$ip/secure-control/discover-hello?payload=discover-hello')
-        .timeout(const Duration(seconds: 3))
+        .timeout(const Duration(seconds: 10))
         .catchError((e) {print(e);});
   }
 
@@ -32,7 +32,7 @@ class ScpMessageSender {
     query += "&mac=${urlEncode(scpJson.encryptedPayload.base64Mac)}";
     return await http
         .get('http://${device.ipAddress}/secure-control?$query')
-        .timeout(const Duration(seconds: 3))
+        .timeout(const Duration(seconds: 10))
         .catchError((e) {print(e);});
   }
 
@@ -69,7 +69,7 @@ class ScpMessageSender {
     print('Setting new password');
     var newPasswordResponse = await http
         .get('http://${device.ipAddress}/secure-control?$query')
-        .timeout(const Duration(seconds: 3))
+        .timeout(const Duration(seconds: 10))
         .catchError((e) {print(e);});
 
     if (newPasswordResponse == null) {
@@ -132,7 +132,7 @@ class ScpMessageSender {
         .get('http://${device.ipAddress}/secure-control?$query')
         .timeout(const Duration(seconds: 30))
         .catchError((e) {print('$e');});
-
+ 
     if (setWifiCredentialsResponse == null) {
       print('failed to send Wifi credentials');
       return ScpStatus.RESULT_ERROR;

@@ -1,3 +1,12 @@
+# 0.0.5
+ * Increased time-out of HTTP requests to more reliability
+
+# 0.0.4
+ * Polishing and refactoring
+
+# 0.0.3
+ * Finished implementation of provisioning, control and reset-to-default use cases
+
 # 0.0.2
  * Upgrade dependencies
 

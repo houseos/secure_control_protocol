@@ -1,5 +1,17 @@
 # Secure Control Protocol Client Library written in Dart
 
+## Build as native application
+
+### Windows
+`dart2native .\bin\scp_client.dart -o .\scp_client.exe`
+
+### Linux
+`dart2native .\bin\scp_client.dart -o .\scp_client`
+
+## Run without build
+
+See below.
+
 ## CLI Client
 
 To only discovers devices:

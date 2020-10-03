@@ -21,7 +21,7 @@ class ScpMessageSender {
 
   static fetchNVCN(ScpDevice device) async {
     //plain text = <salt> + ":" + "security-fetch-nvcn" + ":" + <device ID>
-    String salt = "1";
+    String salt = ScpCrypto().generatePassword();
     String payload = "$salt:security-fetch-nvcn:${device.deviceId}";
     ScpJson scpJson =
         await ScpCrypto().encryptThenEncode(device.knownPassword, payload);
@@ -54,7 +54,8 @@ class ScpMessageSender {
     String password = ScpCrypto().generatePassword();
     //send new password
     // <salt> + ":" + "security-pw-change" + ":" + <device ID> + ":" + <NVCN> + ":" + <new password>
-    String salt = "1";
+   
+    String salt = ScpCrypto().generatePassword();
     String payload =
         "$salt:security-pw-change:${device.deviceId}:$nvcn:$password";
     ScpJson scpJson =
@@ -115,7 +116,8 @@ class ScpMessageSender {
 
     //send new wifi credentials
     // <salt> + ":" + "security-wifi-config" + ":" + <device ID> + ":" + <NVCN> + ":" + <ssid> + ":" + <pre-shared-key>
-    String salt = "1";
+    
+    String salt = ScpCrypto().generatePassword();
     String payload =
         "$salt:security-wifi-config:${device.deviceId}:$nvcn:$ssid:$preSharedKey";
     ScpJson scpJson =
@@ -174,7 +176,8 @@ class ScpMessageSender {
 
     //send new wifi credentials
     // <salt> + ":" + "security-wifi-config" + ":" + <device ID> + ":" + <NVCN>
-    String salt = "1";
+    
+    String salt = ScpCrypto().generatePassword();
     String payload = "$salt:security-restart:${device.deviceId}:$nvcn";
     ScpJson scpJson =
         await ScpCrypto().encryptThenEncode(device.knownPassword, payload);
@@ -233,7 +236,8 @@ class ScpMessageSender {
 
     //send control command
     // <salt> + ":" + "security-reset-to-default" + ":" + <device ID> + ":" + <NVCN>
-    String salt = "1";
+    
+    String salt = ScpCrypto().generatePassword();
     String payload =
         "$salt:security-reset-to-default:${device.deviceId}:$nvcn";
     ScpJson scpJson =
@@ -296,7 +300,8 @@ class ScpMessageSender {
 
     //send control command
     // <salt> + ":" + "control" + ":" + <device ID> + ":" + <NVCN> + ":" + action
-    String salt = "1";
+    
+    String salt = ScpCrypto().generatePassword();
     String payload =
         "$salt:control:${device.deviceId}:$nvcn:$action";
     ScpJson scpJson =

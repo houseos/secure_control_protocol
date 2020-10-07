@@ -12,11 +12,16 @@ import 'package:secure_control_protocol/scp_response_parser.dart';
 import 'package:secure_control_protocol/scp_status.dart';
 
 class ScpMessageSender {
+  static int port = 19316;
+
   static sendDiscoverHello(String ip) async {
     return await http
-        .get('http://$ip/secure-control/discover-hello?payload=discover-hello')
+        .get(
+            'http://$ip:19316/secure-control/discover-hello?payload=discover-hello')
         .timeout(const Duration(seconds: 10))
-        .catchError((e) {print(e);});
+        .catchError((e) {
+      print(e);
+    });
   }
 
   static fetchNVCN(ScpDevice device) async {
@@ -31,9 +36,11 @@ class ScpMessageSender {
     query += "&payloadLength=${scpJson.encryptedPayload.dataLength}";
     query += "&mac=${urlEncode(scpJson.encryptedPayload.base64Mac)}";
     return await http
-        .get('http://${device.ipAddress}/secure-control?$query')
+        .get('http://${device.ipAddress}:19316/secure-control?$query')
         .timeout(const Duration(seconds: 10))
-        .catchError((e) {print(e);});
+        .catchError((e) {
+      print(e);
+    });
   }
 
   static sendNewPassword(ScpDevice device) async {
@@ -54,7 +61,7 @@ class ScpMessageSender {
     String password = ScpCrypto().generatePassword();
     //send new password
     // <salt> + ":" + "security-pw-change" + ":" + <device ID> + ":" + <NVCN> + ":" + <new password>
-   
+
     String salt = ScpCrypto().generatePassword();
     String payload =
         "$salt:security-pw-change:${device.deviceId}:$nvcn:$password";
@@ -69,9 +76,11 @@ class ScpMessageSender {
     // await response
     print('Setting new password');
     var newPasswordResponse = await http
-        .get('http://${device.ipAddress}/secure-control?$query')
+        .get('http://${device.ipAddress}:19316/secure-control?$query')
         .timeout(const Duration(seconds: 10))
-        .catchError((e) {print(e);});
+        .catchError((e) {
+      print(e);
+    });
 
     if (newPasswordResponse == null) {
       print('failed to send new password');
@@ -116,7 +125,7 @@ class ScpMessageSender {
 
     //send new wifi credentials
     // <salt> + ":" + "security-wifi-config" + ":" + <device ID> + ":" + <NVCN> + ":" + <ssid> + ":" + <pre-shared-key>
-    
+
     String salt = ScpCrypto().generatePassword();
     String payload =
         "$salt:security-wifi-config:${device.deviceId}:$nvcn:$ssid:$preSharedKey";
@@ -131,10 +140,12 @@ class ScpMessageSender {
     // await response
     print('Setting new wifi credentials');
     var setWifiCredentialsResponse = await http
-        .get('http://${device.ipAddress}/secure-control?$query')
+        .get('http://${device.ipAddress}:19316/secure-control?$query')
         .timeout(const Duration(seconds: 30))
-        .catchError((e) {print('$e');});
- 
+        .catchError((e) {
+      print('$e');
+    });
+
     if (setWifiCredentialsResponse == null) {
       print('failed to send Wifi credentials');
       return ScpStatus.RESULT_ERROR;
@@ -176,7 +187,7 @@ class ScpMessageSender {
 
     //send new wifi credentials
     // <salt> + ":" + "security-wifi-config" + ":" + <device ID> + ":" + <NVCN>
-    
+
     String salt = ScpCrypto().generatePassword();
     String payload = "$salt:security-restart:${device.deviceId}:$nvcn";
     ScpJson scpJson =
@@ -190,9 +201,11 @@ class ScpMessageSender {
     // await response
     print('Restarting device.');
     var restartDeviceResponse = await http
-        .get('http://${device.ipAddress}/secure-control?$query')
+        .get('http://${device.ipAddress}:19316/secure-control?$query')
         .timeout(const Duration(seconds: 30))
-        .catchError((e) {print(e);});
+        .catchError((e) {
+      print(e);
+    });
 
     if (restartDeviceResponse == null) {
       print('failed to restart device');
@@ -219,7 +232,6 @@ class ScpMessageSender {
   }
 
   static sendResetToDefault(ScpDevice device) async {
-
     // get NVCN
     print('Fetching NVCN');
     var nvcnResponse = await fetchNVCN(device);
@@ -236,10 +248,9 @@ class ScpMessageSender {
 
     //send control command
     // <salt> + ":" + "security-reset-to-default" + ":" + <device ID> + ":" + <NVCN>
-    
+
     String salt = ScpCrypto().generatePassword();
-    String payload =
-        "$salt:security-reset-to-default:${device.deviceId}:$nvcn";
+    String payload = "$salt:security-reset-to-default:${device.deviceId}:$nvcn";
     ScpJson scpJson =
         await ScpCrypto().encryptThenEncode(device.knownPassword, payload);
 
@@ -251,9 +262,11 @@ class ScpMessageSender {
     // await response
     print('Send reset to default message');
     var resetToDefaultMessage = await http
-        .get('http://${device.ipAddress}/secure-control?$query')
+        .get('http://${device.ipAddress}:19316/secure-control?$query')
         .timeout(const Duration(seconds: 30))
-        .catchError((e) {print(e);});
+        .catchError((e) {
+      print(e);
+    });
 
     if (resetToDefaultMessage == null) {
       print('failed to send reset to default message');
@@ -279,11 +292,9 @@ class ScpMessageSender {
       }
     }
     return ScpStatus.RESULT_ERROR;
-
   }
 
   static sendControl(ScpDevice device, String action) async {
-
     // get NVCN
     print('Fetching NVCN');
     var nvcnResponse = await fetchNVCN(device);
@@ -300,10 +311,9 @@ class ScpMessageSender {
 
     //send control command
     // <salt> + ":" + "control" + ":" + <device ID> + ":" + <NVCN> + ":" + action
-    
+
     String salt = ScpCrypto().generatePassword();
-    String payload =
-        "$salt:control:${device.deviceId}:$nvcn:$action";
+    String payload = "$salt:control:${device.deviceId}:$nvcn:$action";
     ScpJson scpJson =
         await ScpCrypto().encryptThenEncode(device.knownPassword, payload);
 
@@ -315,25 +325,28 @@ class ScpMessageSender {
     // await response
     print('Send control command: $action');
     var controlResponse = await http
-        .get('http://${device.ipAddress}/secure-control?$query')
+        .get('http://${device.ipAddress}:19316/secure-control?$query')
         .timeout(const Duration(seconds: 30))
-        .catchError((e) {print(e);});
+        .catchError((e) {
+      print(e);
+    });
 
     if (controlResponse == null) {
       print('failed to send control command');
       return ScpStatus.RESULT_ERROR;
     }
-    if (controlResponse != null &&
-        controlResponse.bodyBytes != null) {
+    if (controlResponse != null && controlResponse.bodyBytes != null) {
       if (controlResponse.statusCode == 200) {
         ScpResponseControl parsedResponse =
             await ScpResponseParser.parseControlResponse(
                 controlResponse, device.knownPassword);
         if (parsedResponse != null) {
-          if (parsedResponse.result == ScpStatus.RESULT_SUCCESS && action == parsedResponse.action) {
+          if (parsedResponse.result == ScpStatus.RESULT_SUCCESS &&
+              action == parsedResponse.action) {
             print('Successfully controlled device.');
             return ScpStatus.RESULT_SUCCESS;
-          } else if (parsedResponse.result == ScpStatus.RESULT_ERROR || action != parsedResponse.action) {
+          } else if (parsedResponse.result == ScpStatus.RESULT_ERROR ||
+              action != parsedResponse.action) {
             print('Failed controlling device.');
             return ScpStatus.RESULT_ERROR;
           }
@@ -343,7 +356,6 @@ class ScpMessageSender {
       }
     }
     return ScpStatus.RESULT_ERROR;
-
   }
 
   static String urlEncode(String s) {

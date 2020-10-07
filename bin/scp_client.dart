@@ -54,6 +54,7 @@ class DiscoverCommand extends Command {
     print('scp_client Discover');
     Scp scp = Scp.getInstance();
     await scp.doDiscover(argResults['ipaddress'], argResults['mask']);
+    print(scp.newDevices);
   }
 }
 

@@ -18,4 +18,4 @@ jobs:
       run: |
         pub run test lib/util/test/ip_range_test.dart
     - name: Compile binary
-      run: dart2native .\bin\scp_client.dart -o .\scp_client
+      run: dart2native ./bin/scp_client.dart -o ./scp_client

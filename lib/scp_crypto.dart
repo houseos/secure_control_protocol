@@ -5,18 +5,26 @@ SPDX-License-Identifier: GPL-3.0-only
 Copyright (C) 2020 Benjamin Schilling
 */
 
+// Standard Library
 import 'dart:convert';
 import 'dart:math';
 
+// 3rd Party Libraries
 import 'package:collection/collection.dart';
 import 'package:cryptography/cryptography.dart' as cryptography;
 import 'package:web3dart/crypto.dart';
+
+// SCP
+import 'package:secure_control_protocol/scp_json.dart';
+import 'package:secure_control_protocol/util/encrypted_payload.dart';
 
 class ScpCrypto {
 
   static final Random _random = Random.secure();
 
   static final String defaultPassword = '01234567890123456789012345678901';
+  static const int PASSWORD_LENGTH = 32;
+  static const int NONCE_LENGTH = 12;
 
   Future<String> decodeThenDecrypt(
       String key, String base64nonce, String base64mac, String base64Text, int payloadLength) async {
@@ -43,9 +51,9 @@ class ScpCrypto {
       List<int> key, List<int> nonce, List<int> encryptedText) async {
     // Encode Key
     cryptography.SecretKey secretKey = cryptography.SecretKey(key);
-    //Encode nonce
+    // Encode nonce
     cryptography.Nonce encodedNonce = cryptography.Nonce(nonce);
-    //Encode encrypted text
+    // Encode encrypted text
     List<int> cipherText = encryptedText;
     // Decrypt
     final clearText = await cryptography.chacha20Poly1305Aead
@@ -75,10 +83,10 @@ class ScpCrypto {
       String key, String plainText) async {
     // Encode Key
     cryptography.SecretKey secretKey = cryptography.SecretKey(utf8.encode(key));
-    //Encode encrypted text
+    // Encode encrypted text
     List<int> clearText = utf8.encode(plainText);
     // Encrypt
-    cryptography.Nonce nonce = cryptography.Nonce.randomBytes(12);
+    cryptography.Nonce nonce = cryptography.Nonce.randomBytes(NONCE_LENGTH);
     final encryptedText = await cryptography.chacha20Poly1305Aead.encrypt(
       clearText,
       secretKey: secretKey,
@@ -117,34 +125,7 @@ class ScpCrypto {
   }
    
   String generatePassword() {
-      var values = List<int>.generate(32, (i) => _random.nextInt(256));
-      return base64Url.encode(values).substring(0,32);
+      var values = List<int>.generate(PASSWORD_LENGTH, (i) => _random.nextInt(256));
+      return base64Url.encode(values).substring(0,PASSWORD_LENGTH);
   }
-}
-
-class EncryptedPayload {
-  String base64DataWithMac;
-  String base64Data;
-  int dataLength;
-  String base64Mac;
-  String base64Nonce;
-
-  EncryptedPayload(
-      {this.base64Data, this.dataLength, this.base64Mac, this.base64DataWithMac, this.base64Nonce});
-
-      
-}
-
-class ScpJson {
-  String key;
-  EncryptedPayload encryptedPayload;
-
-  ScpJson({this.key, this.encryptedPayload});
-
-  Map<String, dynamic> toJson() => {
-        'key': key,
-        'payload': encryptedPayload.base64Data,
-        'payloadLength': encryptedPayload.dataLength,
-        'mac': encryptedPayload.base64Mac,
-      };
 }

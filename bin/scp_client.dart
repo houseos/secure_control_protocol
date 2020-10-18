@@ -5,14 +5,19 @@ SPDX-License-Identifier: GPL-3.0-only
 Copyright (C) 2020 Benjamin Schilling
 */
 
+// Standard Library
 import 'dart:io';
-import 'dart:convert';
 
+// 3rd Party Libraries
 import 'package:args/command_runner.dart';
+
+// SCP
 import 'package:secure_control_protocol/scp.dart';
 
 void main(List<String> args) async {
   //-d to decode and decrypt, first argument is key, second is nvcn, third is payload
+
+  final int USAGE_ERROR = 64;
 
   var runner = CommandRunner(
       'dart.exe .\scp_client.dart', 'Secure Control Protocol CLI Client');
@@ -26,7 +31,7 @@ void main(List<String> args) async {
     ..run(args).catchError((error) {
       if (error is! UsageException) throw error;
       print(runner.usage);
-      exit(64); // Exit code 64 indicates a usage error.
+      exit(USAGE_ERROR); // Exit code 64 indicates a usage error.
     });
 }
 
@@ -136,10 +141,7 @@ class ResetToDefaultCommand extends Command {
     String filePath = argResults['json'];
     if (await File('$filePath').exists()) {
       final file = await File('$filePath');
-      // Read the file
-      String contents = await file.readAsString();
-      var jsonString = json.decode(contents);
-      scp.knownDevicesFromJson(jsonString);
+      scp.knownDevicesFromFile(file);
       await scp.resetToDefault(
         argResults['deviceId'],
       );
@@ -182,10 +184,7 @@ class ControlCommand extends Command {
     String filePath = argResults['json'];
     if (await File('$filePath').exists()) {
       final file = await File('$filePath');
-      // Read the file
-      String contents = await file.readAsString();
-      var jsonString = json.decode(contents);
-      scp.knownDevicesFromJson(jsonString);
+      scp.knownDevicesFromFile(file);
       await scp.control(
         argResults['deviceId'],
         argResults['command'],
@@ -230,10 +229,7 @@ class UpdateCommand extends Command {
     String filePath = argResults['json'];
     if (await File('$filePath').exists()) {
       final file = await File('$filePath');
-      // Read the file
-      String contents = await file.readAsString();
-      var jsonString = json.decode(contents);
-      scp.knownDevicesFromJson(jsonString);
+      scp.knownDevicesFromFile(file);
       scp.doUpdate(argResults['ipaddress'], argResults['mask'], filePath);
     } else {
       print('JSON file does not exist.');

@@ -24,7 +24,7 @@ jobs:
     - uses: actions/upload-artifact@v1
       with:
         name: scp_client_linux_amd64
-        path: .
+        path: scp_client_linux_amd64
   
   build-windows:
     runs-on: windows-latest
@@ -44,7 +44,7 @@ jobs:
     - uses: actions/upload-artifact@v1
       with:
         name: scp_client.exe
-        path: .
+        path: scp_client.exe
 
   release:
     runs-on: ubuntu-latest

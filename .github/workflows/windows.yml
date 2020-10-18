@@ -16,7 +16,7 @@ jobs:
       run: |
         pub run test lib/util/test/ip_range_test.dart
     - name: Compile binary
-      run: dart2native ./bin/scp_client.dart -o ./scp_client_linux_amd64
+      run: dart2native ./bin/scp_client.dart -o ./scp_client.exe
     - name: publish dry run
       run: pub publish --dry-run
     - name: Create a Release
@@ -29,6 +29,7 @@ jobs:
         release_name: Release ${{ github.ref }}
         draft: false
         prerelease: true
+      continue-on-error: true
     - name: Upload Release Asset
       id: upload-release-asset 
       uses: actions/upload-release-asset@v1

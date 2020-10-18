@@ -17,7 +17,7 @@ class ScpMessageSender {
   static sendDiscoverHello(String ip) async {
     return await http
         .get(
-            'http://$ip:19316/secure-control/discover-hello?payload=discover-hello')
+            'http://$ip:$port/secure-control/discover-hello?payload=discover-hello')
         .timeout(const Duration(seconds: 10))
         .catchError((e) {
       print(e);
@@ -36,7 +36,7 @@ class ScpMessageSender {
     query += "&payloadLength=${scpJson.encryptedPayload.dataLength}";
     query += "&mac=${urlEncode(scpJson.encryptedPayload.base64Mac)}";
     return await http
-        .get('http://${device.ipAddress}:19316/secure-control?$query')
+        .get('http://${device.ipAddress}:$port/secure-control?$query')
         .timeout(const Duration(seconds: 10))
         .catchError((e) {
       print(e);
@@ -76,7 +76,7 @@ class ScpMessageSender {
     // await response
     print('Setting new password');
     var newPasswordResponse = await http
-        .get('http://${device.ipAddress}:19316/secure-control?$query')
+        .get('http://${device.ipAddress}:$port/secure-control?$query')
         .timeout(const Duration(seconds: 10))
         .catchError((e) {
       print(e);
@@ -140,7 +140,7 @@ class ScpMessageSender {
     // await response
     print('Setting new wifi credentials');
     var setWifiCredentialsResponse = await http
-        .get('http://${device.ipAddress}:19316/secure-control?$query')
+        .get('http://${device.ipAddress}:$port/secure-control?$query')
         .timeout(const Duration(seconds: 30))
         .catchError((e) {
       print('$e');
@@ -201,7 +201,7 @@ class ScpMessageSender {
     // await response
     print('Restarting device.');
     var restartDeviceResponse = await http
-        .get('http://${device.ipAddress}:19316/secure-control?$query')
+        .get('http://${device.ipAddress}:$port/secure-control?$query')
         .timeout(const Duration(seconds: 30))
         .catchError((e) {
       print(e);
@@ -262,7 +262,7 @@ class ScpMessageSender {
     // await response
     print('Send reset to default message');
     var resetToDefaultMessage = await http
-        .get('http://${device.ipAddress}:19316/secure-control?$query')
+        .get('http://${device.ipAddress}:$port/secure-control?$query')
         .timeout(const Duration(seconds: 30))
         .catchError((e) {
       print(e);
@@ -325,8 +325,8 @@ class ScpMessageSender {
     // await response
     print('Send control command: $action');
     var controlResponse = await http
-        .get('http://${device.ipAddress}:19316/secure-control?$query')
-        .timeout(const Duration(seconds: 30))
+        .get('http://${device.ipAddress}:$port/secure-control?$query')
+        .timeout(const Duration(seconds: 60))
         .catchError((e) {
       print(e);
     });

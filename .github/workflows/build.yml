@@ -63,7 +63,14 @@ jobs:
     - name: Download all workflow run artifacts
       uses: actions/download-artifact@v2
     - name: ls
-      run: ls -al
+      run: |
+        ls -al
+        cd scp_client.exe
+        ls -al
+        cd ..
+        cd scp_client_linux_amd64
+        ls -al 
+        cd ..
     - name: Upload Release Asset Windows
       id: upload-release-asset-windows 
       uses: actions/upload-release-asset@v1

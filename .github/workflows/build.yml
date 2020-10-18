@@ -62,6 +62,8 @@ jobs:
         prerelease: true
     - name: Download all workflow run artifacts
       uses: actions/download-artifact@v2
+    - name: ls
+      run: ls -al
     - name: Upload Release Asset Windows
       id: upload-release-asset-windows 
       uses: actions/upload-release-asset@v1

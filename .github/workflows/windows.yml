@@ -1,0 +1,44 @@
+name: Windows build
+
+on: push
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    container:
+      image:  google/dart:latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: DanTup/gh-actions/setup-dart@master
+    - name: Install dependencies
+      run: pub get
+    - name: Run tests
+      run: |
+        pub run test lib/util/test/ip_range_test.dart
+    - name: Compile binary
+      run: dart2native ./bin/scp_client.dart -o ./scp_client_linux_amd64
+    - name: publish dry run
+      run: pub publish --dry-run
+    - name: Create a Release
+      uses: actions/create-release@v1
+      id: create_release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: true
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./scp_client.exe
+        asset_name: scp_client.exe
+        asset_content_type: application/octet-stream

@@ -5,9 +5,11 @@ SPDX-License-Identifier: GPL-3.0-only
 Copyright (C) 2020 Benjamin Schilling
 */
 
+// Standard Library
 import 'dart:io';
 import 'dart:convert';
 
+// SCP
 import 'package:secure_control_protocol/scp_device.dart';
 
 class JsonStorage {

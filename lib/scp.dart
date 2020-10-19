@@ -5,13 +5,22 @@ SPDX-License-Identifier: GPL-3.0-only
 Copyright (C) 2020 Benjamin Schilling
 */
 
+// Standard Library
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+// SCP
 import 'package:secure_control_protocol/scp_response_parser.dart';
 import 'package:secure_control_protocol/scp_status.dart';
-import 'package:secure_control_protocol/util/ip_range.dart';
 import 'package:secure_control_protocol/scp_message_sender.dart';
-
 import 'package:secure_control_protocol/scp_device.dart';
+
+// SCP Responses
+import 'package:secure_control_protocol/scp_responses/scp_response_discover.dart';
+
+// SCP Util
+import 'package:secure_control_protocol/util/ip_range.dart';
 import 'package:secure_control_protocol/util/json_storage.dart';
 
 class Scp {
@@ -37,6 +46,13 @@ class Scp {
   // Initialize knownDevices from JSON
   void knownDevicesFromJson(var json) {
     knownDevices = ScpDevice.devicesfromJson(json);
+  }
+
+  void knownDevicesFromFile(File file) async {
+     // Read the file
+      String contents = await file.readAsString();
+      var jsonString = json.decode(contents);
+      knownDevicesFromJson(jsonString);
   }
 
   void doDiscover(String subnet, String mask) async {

@@ -1,5 +1,13 @@
 # Secure Control Protocol Client Library written in Dart
 
+## Build and run for development
+
+Install the Dart SDK.
+
+Afterwards run `pub get` to fetch all dependencies.
+
+Now the commands below can be used.
+
 ## Build as native application
 
 ### Windows

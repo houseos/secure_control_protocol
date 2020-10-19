@@ -119,7 +119,7 @@ class ResetToDefaultCommand extends Command {
         'deviceId',
         abbr: 'd',
         help: 'The ID of the device to control.',
-        valueHelp: '0 - 32',
+        valueHelp: 'Can be looked up in the json with the provisioned devices.',
       )
       ..addOption(
         'json',
@@ -165,7 +165,7 @@ class ControlCommand extends Command {
         'deviceId',
         abbr: 'd',
         help: 'The ID of the device to control.',
-        valueHelp: '0 - 32',
+        valueHelp: 'Can be looked up in the json with the provisioned devices.',
       )
       ..addOption(
         'json',

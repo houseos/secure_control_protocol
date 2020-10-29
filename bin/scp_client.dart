@@ -141,7 +141,7 @@ class ResetToDefaultCommand extends Command {
     String filePath = argResults['json'];
     if (await File('$filePath').exists()) {
       final file = await File('$filePath');
-      scp.knownDevicesFromFile(file);
+      await scp.knownDevicesFromFile(file);
       await scp.resetToDefault(
         argResults['deviceId'],
       );
@@ -184,7 +184,7 @@ class ControlCommand extends Command {
     String filePath = argResults['json'];
     if (await File('$filePath').exists()) {
       final file = await File('$filePath');
-      scp.knownDevicesFromFile(file);
+      await scp.knownDevicesFromFile(file);
       await scp.control(
         argResults['deviceId'],
         argResults['command'],
@@ -229,7 +229,7 @@ class UpdateCommand extends Command {
     String filePath = argResults['json'];
     if (await File('$filePath').exists()) {
       final file = await File('$filePath');
-      scp.knownDevicesFromFile(file);
+      await scp.knownDevicesFromFile(file);
       scp.doUpdate(argResults['ipaddress'], argResults['mask'], filePath);
     } else {
       print('JSON file does not exist.');

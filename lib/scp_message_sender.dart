@@ -56,7 +56,7 @@ class ScpMessageSender {
     query += "&payloadLength=${scpJson.encryptedPayload.dataLength}";
     query += "&mac=${urlEncode(scpJson.encryptedPayload.base64Mac)}";
     return await http
-        .get('http://${device.ipAddress}:$PORT/secure-control?$PORT')
+        .get('http://${device.ipAddress}:$PORT/secure-control?$query')
         .timeout(const Duration(seconds: NVCN_TIMEOUT))
         .catchError((e) {
       print(e);
@@ -149,6 +149,8 @@ class ScpMessageSender {
     String salt = ScpCrypto().generatePassword();
     String payload =
         "$salt:security-wifi-config:${device.deviceId}:$nvcn:$ssid:$preSharedKey";
+
+    print('Sending wifi config: $payload');
     ScpJson scpJson =
         await ScpCrypto().encryptThenEncode(device.knownPassword, payload);
 

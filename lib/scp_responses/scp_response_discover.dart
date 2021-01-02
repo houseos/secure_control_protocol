@@ -19,7 +19,8 @@ class ScpResponseDiscover {
       {this.deviceId, this.deviceType, this.currentPasswordNumber, this.hmac});
 
   /// Returns a ScpResponseDiscover if HMAC valid, otherwise null
-  factory ScpResponseDiscover.fromJson(var json, List<ScpDevice> devices) {
+  factory ScpResponseDiscover.fromJson(
+      var json, List<ScpDevice> devices, bool verifyHmac) {
     if (json['type'] == type) {
       if (json['deviceId'] == null ||
           json['deviceId'] == '' ||
@@ -29,8 +30,8 @@ class ScpResponseDiscover {
           json['currentPasswordNumber'] == '' ||
           json['hmac'] == null ||
           json['hmac'] == '') {
-            return null;
-          }
+        return null;
+      }
 
       ScpResponseDiscover discoverResponse = ScpResponseDiscover(
         deviceId: json['deviceId'],
@@ -48,10 +49,14 @@ class ScpResponseDiscover {
       }
 
       // Check hmac before additional processing
-      if (ScpCrypto().verifyHMAC(
-          '${ScpResponseDiscover.type}${discoverResponse.deviceId}${discoverResponse.deviceType}${discoverResponse.currentPasswordNumber}',
-          discoverResponse.hmac,
-          password)) {
+      if (verifyHmac) {
+        if (ScpCrypto().verifyHMAC(
+            '${ScpResponseDiscover.type}${discoverResponse.deviceId}${discoverResponse.deviceType}${discoverResponse.currentPasswordNumber}',
+            discoverResponse.hmac,
+            password)) {
+          return discoverResponse;
+        }
+      } else {
         return discoverResponse;
       }
     }

@@ -13,6 +13,7 @@ import 'package:args/command_runner.dart';
 
 // SCP
 import 'package:secure_control_protocol/scp.dart';
+import 'package:secure_control_protocol/util/input_validation.dart';
 
 void main(List<String> args) async {
   //-d to decode and decrypt, first argument is key, second is nvcn, third is payload
@@ -58,6 +59,20 @@ class DiscoverCommand extends Command {
 
   void run() async {
     print('scp_client Discover');
+
+    // validate parameters
+
+    if (!InputValidation.isIpAddress(argResults['ipaddress'])) {
+      print(
+          'IP Address parameter invalid, only IPv4 in dotted-decimal notation allowed.');
+      return;
+    }
+
+    if (!InputValidation.isSubnetMask(argResults['mask'])) {
+      print('Subnet Mask invalid.');
+      return;
+    }
+
     Scp scp = Scp.getInstance();
     await scp.doDiscover(argResults['ipaddress'], argResults['mask']);
     print(scp.newDevices);
@@ -104,6 +119,20 @@ class ProvisionCommand extends Command {
 
   void run() async {
     print('scp_client Provision');
+
+    // validate parameters
+
+    if (!InputValidation.isIpAddress(argResults['ipaddress'])) {
+      print(
+          'IP Address parameter invalid, only IPv4 in dotted-decimal notation allowed.');
+      return;
+    }
+
+    if (!InputValidation.isSubnetMask(argResults['mask'])) {
+      print('Subnet Mask invalid.');
+      return;
+    }
+
     Scp scp = Scp.getInstance();
     await scp.doDiscoverThenDoProvisioning(
       argResults['ipaddress'],
@@ -200,7 +229,7 @@ class MeasureCommand extends Command {
   final name = "measure";
   final description = "Measure a value.";
 
-  MeasureCommand(){
+  MeasureCommand() {
     argParser
       ..addOption(
         'action',
@@ -221,7 +250,7 @@ class MeasureCommand extends Command {
         valueHelp: 'Path in the filesystem.',
       );
   }
-void run() async {
+  void run() async {
     print('scp_client measure');
     Scp scp = Scp.getInstance();
 
@@ -269,6 +298,19 @@ class UpdateCommand extends Command {
   void run() async {
     print('scp_client update');
     Scp scp = Scp.getInstance();
+
+    // validate parameters
+
+    if (!InputValidation.isIpAddress(argResults['ipaddress'])) {
+      print(
+          'IP Address parameter invalid, only IPv4 in dotted-decimal notation allowed.');
+      return;
+    }
+
+    if (!InputValidation.isSubnetMask(argResults['mask'])) {
+      print('Subnet Mask invalid.');
+      return;
+    }
 
     String filePath = argResults['json'];
     if (await File('$filePath').exists()) {

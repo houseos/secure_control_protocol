@@ -40,7 +40,7 @@ class ScpMessageSender {
             'http://$ip:$PORT/secure-control/discover-hello?payload=discover-hello')
         .timeout(const Duration(seconds: DISCOVER_TIMEOUT))
         .catchError((e) {
-      print(e);
+      print('Failed sending discover message: $e');
     });
   }
 

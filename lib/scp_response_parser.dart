@@ -58,7 +58,7 @@ class ScpResponseControl {
 }
 
 class ScpResponseMeasure {
-    static const String type = "measure";
+  static const String type = "measure";
   String action;
   String deviceId;
   String result;
@@ -97,10 +97,16 @@ class ScpResponseMeasure {
 }
 
 class ScpResponseParser {
+  static ScpResponseDiscover parseDiscoverResponseNoHmac(
+      var response, List<ScpDevice> devices) {
+    return ScpResponseDiscover.fromJson(
+        json.decode(utf8.decode(response.bodyBytes)), devices, false);
+  }
+
   static ScpResponseDiscover parseDiscoverResponse(
       var response, List<ScpDevice> devices) {
     return ScpResponseDiscover.fromJson(
-        json.decode(utf8.decode(response.bodyBytes)), devices);
+        json.decode(utf8.decode(response.bodyBytes)), devices, true);
   }
 
   static ScpResponseFetchNvcn parseNvcnResponse(var response) {
@@ -137,6 +143,7 @@ class ScpResponseParser {
     return await ScpResponseControl.fromJson(
         json.decode(utf8.decode(response.bodyBytes)), password);
   }
+
   static Future<ScpResponseMeasure> parseMeasureResponse(
       var response, String password) async {
     return await ScpResponseMeasure.fromJson(

@@ -23,6 +23,7 @@ import 'package:secure_control_protocol/scp_responses/scp_response_reset_to_defa
 import 'package:secure_control_protocol/scp_responses/scp_response_restart.dart';
 import 'package:secure_control_protocol/scp_responses/scp_response_set_password.dart';
 import 'package:secure_control_protocol/scp_responses/scp_response_set_wifi_config.dart';
+import 'package:secure_control_protocol/scp_responses/scp_response_control.dart';
 
 class ScpMessageSender {
   static const int PORT = 19316;

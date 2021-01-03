@@ -21,7 +21,7 @@ class IPRange {
   }
 
   List<int> getOctetsOfIpAddress(String ipAddress) {
-    List<int> octets = new List();
+    List<int> octets = List<int>.empty(growable: true);
     ipAddress.split('.').forEach((octet) => octets.add(int.parse(octet)));
     return octets;
   }
@@ -36,7 +36,8 @@ class IPRange {
   }
 
   static List<int> integerToOctets(int address) {
-    List<int> octets = new List(4);
+    int fill = 0;
+    List<int> octets = List<int>.filled(4, fill, growable: false);
     octets[0] = (address & (255 << 24)) >> 24;
     octets[1] = (address & (255 << 16)) >> 16;
     octets[2] = (address & (255 << 8)) >> 8;
@@ -49,7 +50,8 @@ class IPRange {
   }
 
   List<int> calculateLastIpAddress() {
-    List<int> octets = new List(4);
+    int fill = 0;
+    List<int> octets = List<int>.filled(4, fill, growable: false);
 
     // Determine host bits
     int hostbits = 32 - netmask;
@@ -70,7 +72,8 @@ class IPRange {
   }
 
   List<int> calculateNetworkAddress() {
-    List<int> octets = new List(4);
+    int fill = 0;
+    List<int> octets = List<int>.filled(4, fill, growable: false);
 
     // Get only the network bits set to 1
     int invertor = 0;
@@ -87,7 +90,7 @@ class IPRange {
   }
 
   List<String> getAllIpAddressesInRange() {
-    List<String> ipAddresses = new List<String>();
+    List<String> ipAddresses = List<String>.empty(growable: true);
 
     //start with lowest address
     int currentAddress = octetsToInteger(this.calculateNetworkAddress());

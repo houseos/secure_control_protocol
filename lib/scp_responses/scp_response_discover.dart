@@ -5,6 +5,7 @@ SPDX-License-Identifier: GPL-3.0-only
 Copyright (C) 2020 Benjamin Schilling
 */
 
+// SCP
 import 'package:secure_control_protocol/scp_crypto.dart';
 import 'package:secure_control_protocol/scp_device.dart';
 
@@ -29,8 +30,8 @@ class ScpResponseDiscover {
           json['currentPasswordNumber'] == '' ||
           json['hmac'] == null ||
           json['hmac'] == '') {
-            return null;
-          }
+        return null;
+      }
 
       ScpResponseDiscover discoverResponse = ScpResponseDiscover(
         deviceId: json['deviceId'],

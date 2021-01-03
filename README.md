@@ -20,6 +20,10 @@ Now the commands below can be used.
 
 See below.
 
+## Run Tests
+
+`dart run <path to test>`
+
 ## CLI Client
 
 To only discovers devices:

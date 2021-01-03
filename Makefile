@@ -10,4 +10,4 @@ build:
 		dart compile exe bin/scp_client.dart
 
 clean:
-		rm -f -r bin/scp_client.dart
+		rm -f -r bin/scp_client.exe

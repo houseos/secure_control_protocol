@@ -68,43 +68,52 @@ class Scp {
     });
 
     Future.wait(requests).then(
-      (List responses) => responses.forEach((response) {
-        if (response != null && response.bodyBytes != null) {
-          if (response.statusCode == 200) {
-            ScpResponseDiscover parsedResponse =
-                ScpResponseParser.parseDiscoverResponse(response, null);
-            if (parsedResponse != null) {
-              ScpDevice dev = ScpDevice(
-                  deviceId: parsedResponse.deviceId,
-                  deviceType: parsedResponse.deviceType,
-                  currentPasswordNumber: parsedResponse.currentPasswordNumber,
-                  ipAddress: allIPs
-                      .firstWhere((ip) => response.request.url.host == ip),
-                  isDefaultPasswordSet:
-                      parsedResponse.currentPasswordNumber == 0 ? true : false,
-                  knownPassword: parsedResponse.currentPasswordNumber == 0
-                      ? "01234567890123456789012345678901"
-                      : "");
-              if (dev.isDefaultPasswordSet) {
-                print('default password set, adding to new devices.');
-                newDevices.add(dev);
-              } else {
-                print('default password not set.');
-                if (knownDevices
-                    .contains((element) => element.deviceId == dev.deviceId)) {
-                  print('Device ${dev.deviceId} already known.');
-                } else {
+        (List responses) => responses.forEach((response) {
+              if (response != null && response.bodyBytes != null) {
+                if (response.statusCode == 200) {
                   print(
-                      'Device ${dev.deviceId} not known, adding to known devices.');
-                  knownDevices.add(dev);
+                      'Received discover response from ${response.request.url}.');
+                  ScpResponseDiscover parsedResponse =
+                      ScpResponseParser.parseDiscoverResponseNoHmac(
+                          response, null);
+                  if (parsedResponse != null) {
+                    ScpDevice dev = ScpDevice(
+                        deviceId: parsedResponse.deviceId,
+                        deviceType: parsedResponse.deviceType,
+                        currentPasswordNumber:
+                            parsedResponse.currentPasswordNumber,
+                        ipAddress: allIPs.firstWhere(
+                            (ip) => response.request.url.host == ip),
+                        isDefaultPasswordSet:
+                            parsedResponse.currentPasswordNumber == 0
+                                ? true
+                                : false,
+                        knownPassword: parsedResponse.currentPasswordNumber == 0
+                            ? '01234567890123456789012345678901'
+                            : '');
+                    if (dev.isDefaultPasswordSet) {
+                      print('default password set, adding to new devices.');
+                      newDevices.add(dev);
+                    } else {
+                      print('default password not set.');
+                      if (knownDevices.contains(
+                          (element) => element.deviceId == dev.deviceId)) {
+                        print('Device ${dev.deviceId} already known.');
+                      } else {
+                        print(
+                            'Device ${dev.deviceId} not known, adding to known devices.');
+                        knownDevices.add(dev);
+                      }
+                    }
+                    print('Found device: ${dev.toJson()}');
+                  } else {
+                    print('Failed parsing response.');
+                  }
                 }
               }
-              print('Found device: ${dev.toJson()}');
-            }
-          }
-        }
-      }),
-    );
+            }), onError: (e) {
+      print('Could not reach device.');
+    });
   }
 
   // Updates the IP addresses of all devices in the list of known devices

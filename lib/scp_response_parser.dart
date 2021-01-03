@@ -22,11 +22,19 @@ import 'package:secure_control_protocol/scp_responses/scp_response_control.dart'
 import 'package:secure_control_protocol/scp_responses/scp_response_measure.dart';
 
 class ScpResponseParser {
+  static ScpResponseDiscover parseDiscoverResponseNoHmac(
+      var response, List<ScpDevice> devices) {
+    return ScpResponseDiscover.fromJson(
+        jsonDecode(response), devices, false,
+    );
+  }
+
   static ScpResponseDiscover parseDiscoverResponse(
       var response, List<ScpDevice> devices) {
     return ScpResponseDiscover.fromJson(
       jsonDecode(response),
       devices,
+      false,
     );
   }
 
@@ -76,13 +84,14 @@ class ScpResponseParser {
     );
   }
 
+  static Future<ScpResponseMeasure> parseMeasureResponse(
+      var response, String password) async {
+    return await ScpResponseMeasure.fromJson(
+         jsonDecode(response), password);
+  }
+
   static jsonDecode(var response) {
     return json.decode(utf8.decode(response.bodyBytes));
   }
 
-  static Future<ScpResponseMeasure> parseMeasureResponse(
-      var response, String password) async {
-    return await ScpResponseMeasure.fromJson(
-        json.decode(utf8.decode(response.bodyBytes)), password);
-  }
 }

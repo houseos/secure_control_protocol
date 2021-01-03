@@ -40,7 +40,7 @@ class Scp {
   }
 
   Scp() {
-    knownDevices = List<ScpDevice>();
+    knownDevices = List<ScpDevice>.empty(growable: true);
   }
 
   // Initialize knownDevices from JSON
@@ -49,19 +49,19 @@ class Scp {
   }
 
   void knownDevicesFromFile(File file) async {
-     // Read the file
-      String contents = await file.readAsString();
-      var jsonString = json.decode(contents);
-      knownDevicesFromJson(jsonString);
+    // Read the file
+    String contents = await file.readAsString();
+    var jsonString = json.decode(contents);
+    knownDevicesFromJson(jsonString);
   }
 
   void doDiscover(String subnet, String mask) async {
-    newDevices = List<ScpDevice>();
+    newDevices = List<ScpDevice>.empty(growable: true);
     // Get a list with all relevant IP addresses
     IPRange range = IPRange(subnet, int.parse(mask));
     List<String> allIPs = range.getAllIpAddressesInRange();
 
-    List<Future> requests = List<Future>();
+    List<Future> requests = List<Future>.empty(growable: true);
 
     await allIPs.forEach((ip) async {
       requests.add(ScpMessageSender.sendDiscoverHello(ip));
@@ -109,12 +109,12 @@ class Scp {
 
   // Updates the IP addresses of all devices in the list of known devices
   void doUpdate(String subnet, String mask, String jsonPath) async {
-    newDevices = List<ScpDevice>();
+    newDevices = List<ScpDevice>.empty(growable: true);
     // Get a list with all relevant IP addresses
     IPRange range = IPRange(subnet, int.parse(mask));
     List<String> allIPs = range.getAllIpAddressesInRange();
 
-    List<Future> requests = List<Future>();
+    List<Future> requests = List<Future>.empty(growable: true);
 
     await allIPs.forEach((ip) async {
       requests.add(ScpMessageSender.sendDiscoverHello(ip));
@@ -146,12 +146,12 @@ class Scp {
 
   void doDiscoverThenDoProvisioning(String subnet, String mask, String ssid,
       String wifiPassword, String jsonPath) async {
-    newDevices = List<ScpDevice>();
+    newDevices = List<ScpDevice>.empty(growable: true);
     // Get a list with all relevant IP addresses
     IPRange range = IPRange(subnet, int.parse(mask));
     List<String> allIPs = range.getAllIpAddressesInRange();
 
-    List<Future> requests = List<Future>();
+    List<Future> requests = List<Future>.empty(growable: true);
 
     await allIPs.forEach((ip) async {
       requests.add(ScpMessageSender.sendDiscoverHello(ip));
@@ -247,8 +247,9 @@ class Scp {
     final controlResponse = await ScpMessageSender.sendControl(
         knownDevices.firstWhere((element) => element.deviceId == deviceId),
         command);
-        print(controlResponse);
-    if (controlResponse != null && controlResponse == ScpStatus.RESULT_SUCCESS) {
+    print(controlResponse);
+    if (controlResponse != null &&
+        controlResponse == ScpStatus.RESULT_SUCCESS) {
       print('Successfully send control $command to $deviceId');
     } else {
       print('Failed to send control $command to $deviceId');
@@ -259,8 +260,9 @@ class Scp {
     print('do control for device: $deviceId');
     final resetToDefaultResponse = await ScpMessageSender.sendResetToDefault(
         knownDevices.firstWhere((element) => element.deviceId == deviceId));
-        print(resetToDefaultResponse);
-    if (resetToDefaultResponse != null && resetToDefaultResponse == ScpStatus.RESULT_SUCCESS) {
+    print(resetToDefaultResponse);
+    if (resetToDefaultResponse != null &&
+        resetToDefaultResponse == ScpStatus.RESULT_SUCCESS) {
       print('Successfully send reset to default to $deviceId');
     } else {
       print('Failed to send reset to default to $deviceId');

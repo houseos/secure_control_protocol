@@ -57,7 +57,7 @@ class ScpMessageSender {
     query += "&payloadLength=${scpJson.encryptedPayload.dataLength}";
     query += "&mac=${urlEncode(scpJson.encryptedPayload.base64Mac)}";
     return await http
-        .get('http://${device.ipAddress}:$PORT/secure-control?$PORT')
+        .get('http://${device.ipAddress}:$PORT/secure-control?$query')
         .timeout(const Duration(seconds: NVCN_TIMEOUT))
         .catchError((e) {
       print(e);

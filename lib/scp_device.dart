@@ -22,7 +22,7 @@ class ScpDevice {
       this.isDefaultPasswordSet,
       this.knownPassword,
       this.currentPasswordNumber}) {
-    this.actions = new List<ScpDeviceAction>();
+    this.actions = List<ScpDeviceAction>.empty(growable: true);
     if (this.deviceType == ScpDeviceTypes.SHUTTER_CONTROL) {
       this.actions.add(ScpDeviceAction(name: 'Open', action: 'up'));
       this.actions.add(ScpDeviceAction(name: 'Close', action: 'down'));
@@ -31,13 +31,14 @@ class ScpDevice {
   }
 
   static List<ScpDevice> devicesfromJson(var json) {
-    List<ScpDevice> devices = List<ScpDevice>();
+    List<ScpDevice> devices = List<ScpDevice>.empty(growable: true);
     for (var j in json) {
       ScpDevice d = ScpDevice(
         deviceId: j['deviceId'],
         deviceType: j['deviceType'],
         ipAddress: j['ipAddress'],
-        isDefaultPasswordSet: j['isDefaultPasswordSet'] == 'false' ? false: true,
+        isDefaultPasswordSet:
+            j['isDefaultPasswordSet'] == 'false' ? false : true,
         knownPassword: j['knownPassword'],
         currentPasswordNumber: int.parse(j['currentPasswordNumber']),
       );

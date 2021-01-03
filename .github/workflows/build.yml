@@ -18,13 +18,13 @@ jobs:
       run: |
         pub run test lib/util/test/ip_range_test.dart
     - name: Compile binary
-      run: dart2native ./bin/scp_client.dart -o ./scp_client_linux_amd64
+      run: dart compile exe ./bin/scp_client.dart
     - name: publish dry run
       run: pub publish --dry-run
     - uses: actions/upload-artifact@v1
       with:
         name: scp_client_linux_amd64
-        path: scp_client_linux_amd64
+        path: scp_client
   
   build-windows:
     runs-on: windows-latest
@@ -38,7 +38,7 @@ jobs:
       run: |
         pub run test lib/util/test/ip_range_test.dart
     - name: Compile binary
-      run: dart2native ./bin/scp_client.dart -o ./scp_client.exe
+      run: dart compile exe .\bin\scp_client.dart
     - name: publish dry run
       run: pub publish --dry-run
     - uses: actions/upload-artifact@v1

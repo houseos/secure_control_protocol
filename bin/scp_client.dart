@@ -28,6 +28,7 @@ void main(List<String> args) async {
     ..addCommand(UpdateCommand())
     ..addCommand(ControlCommand())
     ..addCommand(ResetToDefaultCommand())
+    ..addCommand(MeasureCommand())
     ..run(args).catchError((error) {
       if (error is! UsageException) throw error;
       print(runner.usage);
@@ -141,7 +142,7 @@ class ResetToDefaultCommand extends Command {
     String filePath = argResults['json'];
     if (await File('$filePath').exists()) {
       final file = await File('$filePath');
-      scp.knownDevicesFromFile(file);
+      await scp.knownDevicesFromFile(file);
       await scp.resetToDefault(
         argResults['deviceId'],
       );
@@ -184,10 +185,53 @@ class ControlCommand extends Command {
     String filePath = argResults['json'];
     if (await File('$filePath').exists()) {
       final file = await File('$filePath');
-      scp.knownDevicesFromFile(file);
+      await scp.knownDevicesFromFile(file);
       await scp.control(
         argResults['deviceId'],
         argResults['command'],
+      );
+    } else {
+      print('JSON file does not exist.');
+    }
+  }
+}
+
+class MeasureCommand extends Command {
+  final name = "measure";
+  final description = "Measure a value.";
+
+  MeasureCommand(){
+    argParser
+      ..addOption(
+        'action',
+        abbr: 'a',
+        help: 'The measure action to send to the device.',
+        valueHelp: 'Any string registered in the device.',
+      )
+      ..addOption(
+        'deviceId',
+        abbr: 'd',
+        help: 'The ID of the device to control.',
+        valueHelp: 'Can be looked up in the json with the provisioned devices.',
+      )
+      ..addOption(
+        'json',
+        abbr: 'j',
+        help: 'Path to the JSON file containing all known devices.',
+        valueHelp: 'Path in the filesystem.',
+      );
+  }
+void run() async {
+    print('scp_client measure');
+    Scp scp = Scp.getInstance();
+
+    String filePath = argResults['json'];
+    if (await File('$filePath').exists()) {
+      final file = await File('$filePath');
+      await scp.knownDevicesFromFile(file);
+      await scp.measure(
+        argResults['deviceId'],
+        argResults['action'],
       );
     } else {
       print('JSON file does not exist.');
@@ -229,7 +273,7 @@ class UpdateCommand extends Command {
     String filePath = argResults['json'];
     if (await File('$filePath').exists()) {
       final file = await File('$filePath');
-      scp.knownDevicesFromFile(file);
+      await scp.knownDevicesFromFile(file);
       scp.doUpdate(argResults['ipaddress'], argResults['mask'], filePath);
     } else {
       print('JSON file does not exist.');

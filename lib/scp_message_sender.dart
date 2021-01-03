@@ -150,6 +150,8 @@ class ScpMessageSender {
     String salt = ScpCrypto().generatePassword();
     String payload =
         "$salt:security-wifi-config:${device.deviceId}:$nvcn:$ssid:$preSharedKey";
+
+    print('Sending wifi config: $payload');
     ScpJson scpJson =
         await ScpCrypto().encryptThenEncode(device.knownPassword, payload);
 
@@ -374,6 +376,70 @@ class ScpMessageSender {
         }
       } else {
         print('Status code not 200: ${controlResponse.statusCode}');
+      }
+    }
+    return ScpStatus.RESULT_ERROR;
+  }
+
+  static sendMeasure(ScpDevice device, String action) async {
+    // get NVCN
+    print('Fetching NVCN');
+    var nvcnResponse = await fetchNVCN(device);
+    if (nvcnResponse == null) {
+      return ScpStatus.RESULT_ERROR;
+    }
+    if (nvcnResponse.statusCode != 200 || nvcnResponse.bodyBytes == 0) {
+      return ScpStatus.RESULT_ERROR;
+    }
+    ScpResponseFetchNvcn parsedNvcnResponse =
+        ScpResponseParser.parseNvcnResponse(nvcnResponse);
+
+    String nvcn = parsedNvcnResponse.nvcn;
+
+    //send control command
+    // <salt> + ":" + "control" + ":" + <device ID> + ":" + <NVCN> + ":" + action
+
+    String salt = ScpCrypto().generatePassword();
+    String payload = "$salt:measure:${device.deviceId}:$nvcn:$action";
+    ScpJson scpJson =
+        await ScpCrypto().encryptThenEncode(device.knownPassword, payload);
+
+    String query = "nonce=${urlEncode(scpJson.encryptedPayload.base64Nonce)}";
+    query += "&payload=${urlEncode(scpJson.encryptedPayload.base64Data)}";
+    query += "&payloadLength=${scpJson.encryptedPayload.dataLength}";
+    query += "&mac=${urlEncode(scpJson.encryptedPayload.base64Mac)}";
+
+    // await response
+    print('Send measure command: $action');
+    var measureResponse = await http
+        .get('http://${device.ipAddress}:$PORT/secure-control?$query')
+        .timeout(const Duration(seconds: CONTROL_TIMEOUT))
+        .catchError((e) {
+      print(e);
+    });
+
+    if (measureResponse == null) {
+      print('failed to send measure command');
+      return ScpStatus.RESULT_ERROR;
+    }
+    if (measureResponse != null && measureResponse.bodyBytes != null) {
+      if (measureResponse.statusCode == 200) {
+        ScpResponseMeasure parsedResponse =
+            await ScpResponseParser.parseMeasureResponse(
+                measureResponse, device.knownPassword);
+        if (parsedResponse != null) {
+          if (parsedResponse.result == ScpStatus.RESULT_SUCCESS &&
+              action == parsedResponse.action) {
+            print('Successfully measured $action: ${parsedResponse.value}.');
+            return ScpStatus.RESULT_SUCCESS;
+          } else if (parsedResponse.result == ScpStatus.RESULT_ERROR ||
+              action != parsedResponse.action) {
+            print('Failed measuring $action.');
+            return ScpStatus.RESULT_ERROR;
+          }
+        }
+      } else {
+        print('Status code not 200: ${measureResponse.statusCode}');
       }
     }
     return ScpStatus.RESULT_ERROR;

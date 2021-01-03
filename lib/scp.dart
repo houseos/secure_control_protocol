@@ -256,6 +256,20 @@ class Scp {
     }
   }
 
+  void measure(String deviceId, String action) async {
+    print('do measure for device: $deviceId');
+    final measureResponse = await ScpMessageSender.sendMeasure(
+        knownDevices.firstWhere((element) => element.deviceId == deviceId),
+        action);
+    print(measureResponse);
+    if (measureResponse != null &&
+        measureResponse == ScpStatus.RESULT_SUCCESS) {
+      print('Successfully send measure $action to $deviceId');
+    } else {
+      print('Failed to send measure $action to $deviceId');
+    }
+  }
+
   void resetToDefault(String deviceId) async {
     print('do control for device: $deviceId');
     final resetToDefaultResponse = await ScpMessageSender.sendResetToDefault(

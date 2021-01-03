@@ -20,8 +20,13 @@ void main(List<String> args) async {
 
   final int USAGE_ERROR = 64;
 
-  var runner = CommandRunner(
-      'dart.exe .\scp_client.dart', 'Secure Control Protocol CLI Client');
+  var runner;
+  if (Platform.isWindows) {
+    runner =
+        CommandRunner('scp_client.exe', 'Secure Control Protocol CLI Client');
+  } else {
+    runner = CommandRunner('scp_client', 'Secure Control Protocol CLI Client');
+  }
 
   runner
     ..addCommand(DiscoverCommand())

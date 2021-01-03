@@ -7,7 +7,7 @@
 all: clean build
 
 build:
-		pub get
+		dart pub get
 		dart compile exe bin/scp_client.dart
 
 clean:

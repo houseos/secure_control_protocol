@@ -16,7 +16,7 @@ class JsonStorage {
   static void storeDevice(ScpDevice device, String path) async {
     //read file
     var jsonData = await JsonStorage.readJson('$path');
-    List<ScpDevice> devices = List<ScpDevice>();
+    List<ScpDevice> devices = List<ScpDevice>.empty(growable: true);
     if (jsonData != null) {
       devices.addAll(ScpDevice.devicesfromJson(jsonData));
     } else {
@@ -32,7 +32,7 @@ class JsonStorage {
     file.writeAsString('$encoded', mode: FileMode.write);
   }
 
-  static void updateFromJson(String newJson, String path) async{
+  static void updateFromJson(String newJson, String path) async {
     final file = await File('$path');
     // Write the file
     file.writeAsString('$newJson', mode: FileMode.write);

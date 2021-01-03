@@ -40,7 +40,7 @@ class Scp {
   }
 
   Scp() {
-    knownDevices = List<ScpDevice>();
+    knownDevices = List<ScpDevice>.empty(growable: true);
   }
 
   // Initialize knownDevices from JSON
@@ -56,12 +56,12 @@ class Scp {
   }
 
   void doDiscover(String subnet, String mask) async {
-    newDevices = List<ScpDevice>();
+    newDevices = List<ScpDevice>.empty(growable: true);
     // Get a list with all relevant IP addresses
     IPRange range = IPRange(subnet, int.parse(mask));
     List<String> allIPs = range.getAllIpAddressesInRange();
 
-    List<Future> requests = List<Future>();
+    List<Future> requests = List<Future>.empty(growable: true);
 
     await allIPs.forEach((ip) async {
       requests.add(ScpMessageSender.sendDiscoverHello(ip));
@@ -118,12 +118,12 @@ class Scp {
 
   // Updates the IP addresses of all devices in the list of known devices
   void doUpdate(String subnet, String mask, String jsonPath) async {
-    newDevices = List<ScpDevice>();
+    newDevices = List<ScpDevice>.empty(growable: true);
     // Get a list with all relevant IP addresses
     IPRange range = IPRange(subnet, int.parse(mask));
     List<String> allIPs = range.getAllIpAddressesInRange();
 
-    List<Future> requests = List<Future>();
+    List<Future> requests = List<Future>.empty(growable: true);
 
     await allIPs.forEach((ip) async {
       requests.add(ScpMessageSender.sendDiscoverHello(ip));
@@ -155,12 +155,12 @@ class Scp {
 
   void doDiscoverThenDoProvisioning(String subnet, String mask, String ssid,
       String wifiPassword, String jsonPath) async {
-    newDevices = List<ScpDevice>();
+    newDevices = List<ScpDevice>.empty(growable: true);
     // Get a list with all relevant IP addresses
     IPRange range = IPRange(subnet, int.parse(mask));
     List<String> allIPs = range.getAllIpAddressesInRange();
 
-    List<Future> requests = List<Future>();
+    List<Future> requests = List<Future>.empty(growable: true);
 
     await allIPs.forEach((ip) async {
       requests.add(ScpMessageSender.sendDiscoverHello(ip));

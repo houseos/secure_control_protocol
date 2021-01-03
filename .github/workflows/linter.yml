@@ -3,7 +3,7 @@ name: Linux Build
 on: push
 
 jobs:
-  build-linux:
+  lint:
 
     runs-on: ubuntu-latest
 

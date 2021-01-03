@@ -42,7 +42,7 @@ jobs:
     - uses: actions/upload-artifact@v1
       with:
         name: scp-client_0.0.1-0_amd64.deb
-        path: ./scp-client_0.0.1_amd64.deb
+        path: ./scp-client_0.0.1-0_amd64.deb
   
   build-windows:
     runs-on: windows-latest

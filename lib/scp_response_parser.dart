@@ -25,7 +25,8 @@ class ScpResponseParser {
   static ScpResponseDiscover parseDiscoverResponseNoHmac(
       var response, List<ScpDevice> devices) {
     return ScpResponseDiscover.fromJson(
-        json.decode(utf8.decode(response.bodyBytes)), devices, false);
+        jsonDecode(response), devices, false,
+    );
   }
 
   static ScpResponseDiscover parseDiscoverResponse(
@@ -33,6 +34,7 @@ class ScpResponseParser {
     return ScpResponseDiscover.fromJson(
       jsonDecode(response),
       devices,
+      false,
     );
   }
 
@@ -82,13 +84,14 @@ class ScpResponseParser {
     );
   }
 
+  static Future<ScpResponseMeasure> parseMeasureResponse(
+      var response, String password) async {
+    return await ScpResponseMeasure.fromJson(
+         jsonDecode(response), password);
+  }
+
   static jsonDecode(var response) {
     return json.decode(utf8.decode(response.bodyBytes));
   }
 
-  static Future<ScpResponseMeasure> parseMeasureResponse(
-      var response, String password) async {
-    return await ScpResponseMeasure.fromJson(
-        json.decode(utf8.decode(response.bodyBytes)), password);
-  }
 }

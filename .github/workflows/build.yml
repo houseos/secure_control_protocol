@@ -25,6 +25,24 @@ jobs:
       with:
         name: scp_client_linux_amd64
         path: ./bin/scp_client.exe
+    - name: Prepare Debian build
+      run: |
+        sudo apt-get update
+        sudo apt-get install apt-transport-https
+        sudo sh -c 'wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -'
+        sudo sh -c 'wget -qO- https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list > /etc/apt/sources.list.d/dart_stable.list'
+        sudo apt-get update
+        sudo apt-get install debhelper dart
+        mkdir -p debian-packaging
+        rsync -av --exclude='debian-packaging' . debian-packaging/
+    - name: Build Debian Package
+      run: |
+        cd debian-packaging
+        dpkg-buildpackage -uc -us
+    - uses: actions/upload-artifact@v1
+      with:
+        name: scp-client_0.0.1-0_amd64.deb
+        path: ./scp-client_0.0.1_amd64.deb
   
   build-windows:
     runs-on: windows-latest

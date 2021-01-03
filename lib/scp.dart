@@ -109,7 +109,8 @@ class Scp {
                   } else {
                     print('Failed parsing response.');
                   }
-                }
+                } 
+                
               }
             }), onError: (e) {
       print('Could not reach device.');

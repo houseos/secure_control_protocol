@@ -1,0 +1,12 @@
+Source: scp-client
+Section: admin
+Priority: optional
+Maintainer: Benjamin Schilling <benjamin.schilling33@gmail.com>
+Build-Depends: dart
+Standards-Version: 4.0.0
+Homepage: https://github.com/houseos/secure_control_protocol
+
+Package: scp-client
+Architecture: any
+Description: Secure Control Protocol Commandline Client
+ CLI that communicates with SCP-enabled devices.

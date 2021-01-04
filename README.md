@@ -10,7 +10,7 @@ Now the commands below can be used.
 
 ## Build as native application
 
-`dart compile exe .\bin\scp_client.dart`
+`dart compile exe ./bin/scp_client.dart`
 
 ## Run without build
 

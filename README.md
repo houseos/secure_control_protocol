@@ -2,7 +2,7 @@
 
 ## Build and run for development
 
-Install the Dart SDK.
+Install the Dart SDK version > 2.10.
 
 Afterwards run `pub get` to fetch all dependencies.
 
@@ -10,11 +10,7 @@ Now the commands below can be used.
 
 ## Build as native application
 
-### Windows
-`dart2native .\bin\scp_client.dart -o .\scp_client.exe`
-
-### Linux
-`dart2native .\bin\scp_client.dart -o .\scp_client`
+`dart compile exe ./bin/scp_client.dart`
 
 ## Run without build
 

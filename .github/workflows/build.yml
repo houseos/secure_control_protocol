@@ -1,4 +1,4 @@
-name: Linux Build
+name: Build & Release
 
 on: push
 
@@ -18,13 +18,31 @@ jobs:
       run: |
         pub run test lib/util/test/ip_range_test.dart
     - name: Compile binary
-      run: dart2native ./bin/scp_client.dart -o ./scp_client_linux_amd64
+      run: dart compile exe ./bin/scp_client.dart
     - name: publish dry run
       run: pub publish --dry-run
     - uses: actions/upload-artifact@v1
       with:
         name: scp_client_linux_amd64
-        path: scp_client_linux_amd64
+        path: ./bin/scp_client.exe
+    - name: Prepare Debian build
+      run: |
+        apt-get update
+        apt-get install -y apt-transport-https wget rsync debhelper
+        sh -c 'wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -'
+        sh -c 'wget -qO- https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list > /etc/apt/sources.list.d/dart_stable.list'
+        apt-get update
+        apt-get install -y dart
+        mkdir -p debian-packaging
+        rsync -av --exclude='debian-packaging' . debian-packaging/
+    - name: Build Debian Package
+      run: |
+        cd debian-packaging
+        dpkg-buildpackage -uc -us
+    - uses: actions/upload-artifact@v1
+      with:
+        name: scp-client_0.0.1-0_amd64.deb
+        path: ./scp-client_0.0.1-0_amd64.deb
   
   build-windows:
     runs-on: windows-latest
@@ -38,18 +56,18 @@ jobs:
       run: |
         pub run test lib/util/test/ip_range_test.dart
     - name: Compile binary
-      run: dart2native ./bin/scp_client.dart -o ./scp_client.exe
+      run: dart compile exe .\bin\scp_client.dart
     - name: publish dry run
       run: pub publish --dry-run
     - uses: actions/upload-artifact@v1
       with:
         name: scp_client.exe
-        path: scp_client.exe
+        path: .\bin\scp_client.exe
 
   release:
     runs-on: ubuntu-latest
     needs: [build-windows, build-linux]
-    if: ${{ github.ref == 'refs/heads/master' }}
+    if: contains(github.ref, 'refs/tags/')
     steps:
     - name: Create a Release
       uses: actions/create-release@v1

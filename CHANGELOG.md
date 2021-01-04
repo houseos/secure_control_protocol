@@ -1,3 +1,8 @@
+# 0.0.6
+ * Add measure message
+ * Add debianization
+ * Refactoring
+
 # 0.0.5
  * Increased time-out of HTTP requests to more reliability
 

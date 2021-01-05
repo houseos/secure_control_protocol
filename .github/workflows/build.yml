@@ -98,6 +98,16 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./scp_client_linux_amd64/scp_client_linux_amd64
+        asset_path: ./scp_client_linux_amd64/scp_client.exe
         asset_name: scp_client_linux_amd64
+        asset_content_type: application/octet-stream
+    - name: Upload Release Asset Linux
+      id: upload-release-asset-linux
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./scp-client_0.0.1-0_amd64.deb/scp-client_0.0.1-0_amd64.deb
+        asset_name: scp-client_0.0.1-0_amd64.deb
         asset_content_type: application/octet-stream

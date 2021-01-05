@@ -101,8 +101,8 @@ jobs:
         asset_path: ./scp_client_linux_amd64/scp_client.exe
         asset_name: scp_client_linux_amd64
         asset_content_type: application/octet-stream
-    - name: Upload Release Asset Linux
-      id: upload-release-asset-linux
+    - name: Upload Release Asset Debian
+      id: upload-release-asset-debian
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -2,14 +2,16 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2020 Benjamin Schilling
 
-.PHONY: all build clean
+.PHONY: all build install clean
 
 all: clean build
 
 build:
 		dart pub get
 		dart compile exe bin/scp_client.dart
-		mkdir $(DESTDIR)/usr/bin/scp-client
+
+install:
+		mkdir -p $(DESTDIR)/usr/bin/
 		cp bin/scp_client.exe $(DESTDIR)/usr/bin/scp-client
 
 clean:

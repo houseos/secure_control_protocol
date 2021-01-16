@@ -23,9 +23,9 @@ void main(List<String> args) async {
   var runner;
   if (Platform.isWindows) {
     runner =
-        CommandRunner('scp_client.exe', 'Secure Control Protocol CLI Client');
+        CommandRunner('scp-client.exe', 'Secure Control Protocol CLI Client');
   } else {
-    runner = CommandRunner('scp_client', 'Secure Control Protocol CLI Client');
+    runner = CommandRunner('scp-client', 'Secure Control Protocol CLI Client');
   }
 
   runner
@@ -63,7 +63,7 @@ class DiscoverCommand extends Command {
   }
 
   void run() async {
-    print('scp_client Discover');
+    print('scp-client Discover');
 
     // validate parameters
 
@@ -123,7 +123,7 @@ class ProvisionCommand extends Command {
   }
 
   void run() async {
-    print('scp_client Provision');
+    print('scp-client Provision');
 
     // validate parameters
 
@@ -170,7 +170,7 @@ class ResetToDefaultCommand extends Command {
   }
 
   void run() async {
-    print('scp_client reset');
+    print('scp-client reset');
     Scp scp = Scp.getInstance();
 
     String filePath = argResults['json'];
@@ -213,7 +213,7 @@ class ControlCommand extends Command {
   }
 
   void run() async {
-    print('scp_client control');
+    print('scp-client control');
     Scp scp = Scp.getInstance();
 
     String filePath = argResults['json'];
@@ -256,7 +256,7 @@ class MeasureCommand extends Command {
       );
   }
   void run() async {
-    print('scp_client measure');
+    print('scp-client measure');
     Scp scp = Scp.getInstance();
 
     String filePath = argResults['json'];
@@ -301,7 +301,7 @@ class UpdateCommand extends Command {
   }
 
   void run() async {
-    print('scp_client update');
+    print('scp-client update');
     Scp scp = Scp.getInstance();
 
     // validate parameters

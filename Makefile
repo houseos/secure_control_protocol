@@ -8,8 +8,9 @@ all: clean build
 
 build:
 		dart pub get
-		dart compile exe bin/scp-client.dart
-		mv bin/scp-client.exe bin/scp-client
+		dart compile exe bin/scp_client.dart
+		mkdir $(DESTDIR)/usr/bin/scp-client
+		cp bin/scp_client.exe $(DESTDIR)/usr/bin/scp-client
 
 clean:
-		rm -f -r bin/scp_client.exe
+		rm -f -r bin/scp-client

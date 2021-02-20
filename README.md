@@ -1,5 +1,7 @@
 # Secure Control Protocol Client Library written in Dart
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 ## Build and run for development
 
 Install the Dart SDK version > 2.10.

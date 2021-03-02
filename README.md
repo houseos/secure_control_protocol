@@ -1,5 +1,9 @@
 # Secure Control Protocol Client Library written in Dart
 
+This is a client library for IoT devices implementing the [Secure Control Protocol](https://github.com/houseos/SCP). It is used by the [HouseOS Client App](https://github.com/houseos/houseos_client).
+
+It also provides a very basic CLI client for demonstration purposes.
+
 ## Build and run for development
 
 Install the Dart SDK version > 2.10.

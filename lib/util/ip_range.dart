@@ -103,7 +103,7 @@ class IPRange {
     return ipAddresses;
   }
 
-  void printBitmask(int address) {
-    print('Bitmask: ${address.toRadixString(2)}');
+  String returnBitmask(int address) {
+    return 'Bitmask: ${address.toRadixString(2)}';
   }
 }

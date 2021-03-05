@@ -23,9 +23,9 @@ import 'package:secure_control_protocol/scp_responses/scp_response_measure.dart'
 
 class ScpResponseParser {
   static ScpResponseDiscover parseDiscoverResponseNoHmac(
-      var response, List<ScpDevice> devices) {
+      var response) {
     return ScpResponseDiscover.fromJson(
-        jsonDecode(response), devices, false,
+        jsonDecode(response), null, false,
     );
   }
 
@@ -34,7 +34,7 @@ class ScpResponseParser {
     return ScpResponseDiscover.fromJson(
       jsonDecode(response),
       devices,
-      false,
+      true,
     );
   }
 

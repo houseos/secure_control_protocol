@@ -42,7 +42,7 @@ class ScpMessageSender {
             'http://$ip:$PORT/secure-control/discover-hello?payload=discover-hello')
         .timeout(const Duration(seconds: DISCOVER_TIMEOUT))
         .catchError((e) {
-      print('Failed sending discover message: $e');
+      //print('Failed sending discover message: $e');
     });
   }
 
@@ -285,6 +285,69 @@ class ScpMessageSender {
 
     // await response
     print('Send reset to default message');
+    var resetToDefaultMessage = await http
+        .get('http://${device.ipAddress}:$PORT/secure-control?$query')
+        .timeout(const Duration(seconds: RESET_TO_DEFAULT_TIMEOUT))
+        .catchError((e) {
+      print(e);
+    });
+
+    if (resetToDefaultMessage == null) {
+      print('failed to send reset to default message');
+      return ScpStatus.RESULT_ERROR;
+    }
+    if (resetToDefaultMessage != null &&
+        resetToDefaultMessage.bodyBytes != null) {
+      if (resetToDefaultMessage.statusCode == 200) {
+        ScpResponseResetToDefault parsedResponse =
+            await ScpResponseParser.parseResetToDefault(
+                resetToDefaultMessage, device.knownPassword);
+        if (parsedResponse != null) {
+          if (parsedResponse.result == ScpStatus.RESULT_SUCCESS) {
+            print('Successfully reset the device to default.');
+            return ScpStatus.RESULT_SUCCESS;
+          } else if (parsedResponse.result == ScpStatus.RESULT_ERROR) {
+            print('Failed resetting the device to default.');
+            return ScpStatus.RESULT_ERROR;
+          }
+        }
+      } else {
+        print('Status code not 200: ${resetToDefaultMessage.statusCode}');
+      }
+    }
+    return ScpStatus.RESULT_ERROR;
+  }
+
+  static sendRename(ScpDevice device, String name) async {
+    // get NVCN
+    print('Fetching NVCN');
+    var nvcnResponse = await fetchNVCN(device);
+    if (nvcnResponse == null) {
+      return ScpStatus.RESULT_ERROR;
+    }
+    if (nvcnResponse.statusCode != 200 || nvcnResponse.bodyBytes == 0) {
+      return ScpStatus.RESULT_ERROR;
+    }
+    ScpResponseFetchNvcn parsedNvcnResponse =
+        ScpResponseParser.parseNvcnResponse(nvcnResponse);
+
+    String nvcn = parsedNvcnResponse.nvcn;
+
+    //send rename command
+    // <salt> + ":" + "security-rename" + ":" + <device ID> + ":" + <NVCN> + ":" + "<name>"
+
+    String salt = ScpCrypto().generatePassword();
+    String payload = "$salt:security-rename:${device.deviceId}:$nvcn:$name";
+    ScpJson scpJson =
+        await ScpCrypto().encryptThenEncode(device.knownPassword, payload);
+
+    String query = "nonce=${urlEncode(scpJson.encryptedPayload.base64Nonce)}";
+    query += "&payload=${urlEncode(scpJson.encryptedPayload.base64Data)}";
+    query += "&payloadLength=${scpJson.encryptedPayload.dataLength}";
+    query += "&mac=${urlEncode(scpJson.encryptedPayload.base64Mac)}";
+
+    // await response
+    print('Send rename message');
     var resetToDefaultMessage = await http
         .get('http://${device.ipAddress}:$PORT/secure-control?$query')
         .timeout(const Duration(seconds: RESET_TO_DEFAULT_TIMEOUT))

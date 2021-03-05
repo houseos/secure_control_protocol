@@ -12,6 +12,7 @@ import 'dart:math';
 // 3rd Party Libraries
 import 'package:collection/collection.dart';
 import 'package:cryptography/cryptography.dart' as cryptography;
+import 'package:secure_control_protocol/scp.dart';
 import 'package:web3dart/crypto.dart';
 
 // SCP
@@ -27,22 +28,22 @@ class ScpCrypto {
 
   Future<String> decodeThenDecrypt(String key, String base64nonce,
       String base64mac, String base64Text, int payloadLength) async {
-    print('Nonce: $base64nonce');
-    print('base64mac: $base64mac');
-    print('base64Text: $base64Text');
+    Scp.getInstance().log('Nonce: $base64nonce');
+    Scp.getInstance().log('base64mac: $base64mac');
+    Scp.getInstance().log('base64Text: $base64Text');
     List<int> decodedKey = utf8.encode(key);
     List<int> decodedNonce = base64.decode(base64nonce);
     List<int> decodedText = List<int>.empty(growable: true);
-    print('Decoded base64Text: ${base64.decode(base64Text)}');
-    print('Decoded base64mac: ${base64.decode(base64mac)}');
+    Scp.getInstance().log('Decoded base64Text: ${base64.decode(base64Text)}');
+    Scp.getInstance().log('Decoded base64mac: ${base64.decode(base64mac)}');
     decodedText.addAll(base64.decode(base64Text));
-    print('Text length: ${decodedText.length}');
-    print('Text length: $payloadLength');
+    Scp.getInstance().log('Text length: ${decodedText.length}');
+    Scp.getInstance().log('Text length: $payloadLength');
     decodedText.addAll(base64.decode(base64mac));
     while (decodedText.length <= payloadLength) {
       decodedText.add(0);
     }
-    print('Decoded combined: $decodedText');
+    Scp.getInstance().log('Decoded combined: $decodedText');
     return await decryptMessage(decodedKey, decodedNonce, decodedText);
   }
 
@@ -62,7 +63,7 @@ class ScpCrypto {
       nonce: encodedNonce,
     )
         .catchError((err) {
-      print(err);
+      Scp.getInstance().log(err);
     });
     // Return text
     return utf8.decode(clearText);

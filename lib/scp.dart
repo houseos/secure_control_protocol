@@ -46,14 +46,13 @@ class Scp {
     knownDevices = List<ScpDevice>.empty(growable: true);
   }
 
-  void enableLogging(){
+  void enableLogging() {
     loggingEnabled = true;
   }
 
   void log(String s) {
     print('$s');
   }
-
 
   // Initialize knownDevices from JSON
   void knownDevicesFromJson(var json) {
@@ -83,29 +82,29 @@ class Scp {
         (List responses) => responses.forEach((response) {
               if (response != null && response.bodyBytes != null) {
                 if (response.statusCode == 200) {
-                  log(
-                      'Received discover response from ${response.request.url}.');
+                  log('Received discover response from ${response.request.url}.');
                   ScpResponseDiscover parsedResponse =
                       ScpResponseParser.parseDiscoverResponse(
                           response, knownDevices);
                   if (parsedResponse != null) {
                     ScpDevice dev = ScpDevice(
-                        deviceId: parsedResponse.deviceId,
-                        deviceType: parsedResponse.deviceType,
-                        deviceName: parsedResponse.deviceName,
-                        currentPasswordNumber:
-                            parsedResponse.currentPasswordNumber,
-                        ipAddress: allIPs.firstWhere(
-                            (ip) => response.request.url.host == ip),
-                        isDefaultPasswordSet:
-                            parsedResponse.currentPasswordNumber == 0
-                                ? true
-                                : false,
-                        knownPassword: parsedResponse.currentPasswordNumber == 0
-                            ? '01234567890123456789012345678901'
-                            : '',
-                        controlActions: parsedResponse.controlActions,
-                        measureActions: parsedResponse.measureActions,);
+                      deviceId: parsedResponse.deviceId,
+                      deviceType: parsedResponse.deviceType,
+                      deviceName: parsedResponse.deviceName,
+                      currentPasswordNumber:
+                          parsedResponse.currentPasswordNumber,
+                      ipAddress: allIPs
+                          .firstWhere((ip) => response.request.url.host == ip),
+                      isDefaultPasswordSet:
+                          parsedResponse.currentPasswordNumber == 0
+                              ? true
+                              : false,
+                      knownPassword: parsedResponse.currentPasswordNumber == 0
+                          ? '01234567890123456789012345678901'
+                          : '',
+                      controlActions: parsedResponse.controlActions,
+                      measureActions: parsedResponse.measureActions,
+                    );
                     log('Found device: ${dev.toJson()}');
                     if (dev.isDefaultPasswordSet) {
                       log('default password set, adding to new devices.');
@@ -115,19 +114,19 @@ class Scp {
                       bool deviceKnown = false;
                       for (ScpDevice knownDevice in knownDevices) {
                         if (knownDevice.deviceId == dev.deviceId) {
-                              log('Device ${dev.deviceId} already known.');
-                              deviceKnown = true;
+                          log('Device ${dev.deviceId} already known.');
+                          deviceKnown = true;
                         }
                       }
                       if (deviceKnown == false) {
-                          log('Device ${dev.deviceId} not known, adding to known devices.');
-                          knownDevices.add(dev);
+                        log('Device ${dev.deviceId} not known, adding to known devices.');
+                        knownDevices.add(dev);
                       }
                     }
                   } else {
                     log('Failed parsing response.');
                   }
-                } 
+                }
               }
             }), onError: (e) {
       log('Could not reach device.');
@@ -155,7 +154,10 @@ class Scp {
                 ScpResponseParser.parseDiscoverResponse(response, knownDevices);
             if (parsedResponse != null) {
               // Update knowDevice from discover response
-              knownDevices.firstWhere((element) => element.deviceId == parsedResponse.deviceId).updateFromDiscoverResponse(parsedResponse);
+              knownDevices
+                  .firstWhere(
+                      (element) => element.deviceId == parsedResponse.deviceId)
+                  .updateFromDiscoverResponse(parsedResponse);
               // Update IP of knownDevices from requested IPs
               knownDevices
                       .firstWhere((element) =>
@@ -219,8 +221,7 @@ class Scp {
                     .contains((element) => element.deviceId == dev.deviceId)) {
                   log('Device ${dev.deviceId} already known.');
                 } else {
-                  log(
-                      'Device ${dev.deviceId} not known, adding to known devices.');
+                  log('Device ${dev.deviceId} not known, adding to known devices.');
                   knownDevices.add(dev);
                 }
               }
@@ -261,8 +262,7 @@ class Scp {
     final restartResponse = await ScpMessageSender.sendRestart(device);
     // move device from new devices to known devices
     if (restartResponse != null) {
-      log(
-          'Restarting device successfull, removing from new devices and adding to known devices.');
+      log('Restarting device successfull, removing from new devices and adding to known devices.');
       this.knownDevices.add(device);
       this
           .newDevices
@@ -313,14 +313,14 @@ class Scp {
       log('Failed to send reset to default to $deviceId');
     }
   }
-  
+
   void rename(String deviceId, String name) async {
     log('rename for device: $deviceId');
     final renameResponse = await ScpMessageSender.sendRename(
-        knownDevices.firstWhere((element) => element.deviceId == deviceId), name);
+        knownDevices.firstWhere((element) => element.deviceId == deviceId),
+        name);
     log(renameResponse);
-    if (renameResponse != null &&
-        renameResponse == ScpStatus.RESULT_SUCCESS) {
+    if (renameResponse != null && renameResponse == ScpStatus.RESULT_SUCCESS) {
       log('Successfully send renamed $deviceId');
     } else {
       log('Failed to rename $deviceId');

@@ -45,10 +45,12 @@ class ScpDevice {
               j['isDefaultPasswordSet'] == 'false' ? false : true,
           knownPassword: j['knownPassword'],
           currentPasswordNumber: int.parse(j['currentPasswordNumber']),
-          controlActions:
-              j['controlActions'] != null ? Utils.dynamicListToStringList(j['controlActions']) : null,
-          measureActions:
-              j['measureActions'] != null ? Utils.dynamicListToStringList(j['measureActions']) : null,
+          controlActions: j['controlActions'] != null
+              ? Utils.dynamicListToStringList(j['controlActions'])
+              : null,
+          measureActions: j['measureActions'] != null
+              ? Utils.dynamicListToStringList(j['measureActions'])
+              : null,
         ),
       );
     }

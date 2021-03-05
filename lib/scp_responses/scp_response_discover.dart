@@ -82,13 +82,12 @@ class ScpResponseDiscover {
             measureActions += '"$s"';
           }
         }
-        String verifyString = '${ScpResponseDiscover.type}${discoverResponse.deviceId}${discoverResponse.deviceType}${discoverResponse.deviceName}${controlActions}${measureActions}${discoverResponse.currentPasswordNumber}';
+        String verifyString =
+            '${ScpResponseDiscover.type}${discoverResponse.deviceId}${discoverResponse.deviceType}${discoverResponse.deviceName}${controlActions}${measureActions}${discoverResponse.currentPasswordNumber}';
         Scp.getInstance().log('verify string:');
         Scp.getInstance().log(verifyString);
-        if (ScpCrypto().verifyHMAC(
-            verifyString,
-            discoverResponse.hmac,
-            password)) {
+        if (ScpCrypto()
+            .verifyHMAC(verifyString, discoverResponse.hmac, password)) {
           return discoverResponse;
         }
       } else {

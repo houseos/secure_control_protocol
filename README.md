@@ -4,6 +4,8 @@ This is a client library for IoT devices implementing the [Secure Control Protoc
 
 It also provides a very basic CLI client for demonstration purposes.
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 ## Build and run for development
 
 Install the Dart SDK version > 2.10.

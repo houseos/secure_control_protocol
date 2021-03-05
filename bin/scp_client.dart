@@ -28,9 +28,9 @@ void main(List<String> args) async {
   var runner;
   if (Platform.isWindows) {
     runner =
-        CommandRunner('scp_client.exe', 'Secure Control Protocol CLI Client');
+        CommandRunner('scp-client.exe', 'Secure Control Protocol CLI Client');
   } else {
-    runner = CommandRunner('scp_client', 'Secure Control Protocol CLI Client');
+    runner = CommandRunner('scp-client', 'Secure Control Protocol CLI Client');
   }
 
   runner

@@ -1,3 +1,6 @@
+# 0.0.7
+ * Implement device rename command 
+
 # 0.0.6
  * Add measure message
  * Add debianization

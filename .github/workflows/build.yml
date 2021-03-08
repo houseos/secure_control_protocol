@@ -41,8 +41,8 @@ jobs:
         dpkg-buildpackage -uc -us
     - uses: actions/upload-artifact@v1
       with:
-        name: scp-client_0.0.1-0_amd64.deb
-        path: ./scp-client_0.0.1-0_amd64.deb
+        name: scp-client.deb
+        path: ./scp-client_*_amd64.deb
   
   build-windows:
     runs-on: windows-latest
@@ -108,6 +108,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./scp-client_0.0.1-0_amd64.deb/scp-client_0.0.1-0_amd64.deb
-        asset_name: scp-client_0.0.1-0_amd64.deb
+        asset_path: ./scp-client.deb/scp-client.deb
+        asset_name: scp-client.deb
         asset_content_type: application/octet-stream

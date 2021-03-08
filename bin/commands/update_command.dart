@@ -18,7 +18,7 @@ import 'package:secure_control_protocol/util/input_validation.dart';
 class UpdateCommand extends Command {
   final name = "update";
   final description =
-      "Update the IP addresses of all devices in a given IP range.";
+      "Update the stored information of all devices in a given IP range.";
 
   UpdateCommand() {
     argParser

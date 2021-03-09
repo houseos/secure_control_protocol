@@ -5,7 +5,6 @@ SPDX-License-Identifier: GPL-3.0-only
 Copyright (C) 2020 Benjamin Schilling
 */
 
-
 // SCP Util
 import 'package:secure_control_protocol/util/encrypted_payload.dart';
 

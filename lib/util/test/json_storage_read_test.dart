@@ -23,5 +23,4 @@ void main() async {
     var jsonData = await JsonStorage.readJson(testDataPath);
     expect(jsonData, equals(defaultData));
   });
-
 }

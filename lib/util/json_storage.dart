@@ -10,6 +10,7 @@ import 'dart:io';
 import 'dart:convert';
 
 // SCP
+import 'package:secure_control_protocol/scp.dart';
 import 'package:secure_control_protocol/scp_device.dart';
 
 class JsonStorage {
@@ -20,7 +21,7 @@ class JsonStorage {
     if (jsonData != null) {
       devices.addAll(ScpDevice.devicesfromJson(jsonData));
     } else {
-      print('File $path does not exist, creating it...');
+      Scp.getInstance().log('File $path does not exist, creating it...');
     }
     //add to List, remove if it already exists to mitigate duplicates
     devices.removeWhere((element) => element.deviceId == device.deviceId);
@@ -45,7 +46,7 @@ class JsonStorage {
       var jsonString = json.decode(content);
       return jsonString;
     }
-    print('File $path does not exist.');
+    Scp.getInstance().log('File $path does not exist.');
     return null;
   }
 }

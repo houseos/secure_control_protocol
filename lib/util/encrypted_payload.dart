@@ -13,5 +13,9 @@ class EncryptedPayload {
   String base64Nonce;
 
   EncryptedPayload(
-      {this.base64Data, this.dataLength, this.base64Mac, this.base64DataWithMac, this.base64Nonce});
+      {this.base64Data,
+      this.dataLength,
+      this.base64Mac,
+      this.base64DataWithMac,
+      this.base64Nonce});
 }

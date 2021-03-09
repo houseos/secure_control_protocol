@@ -1,4 +1,10 @@
-scp-client (0.0.1-0) unstable; urgency=medium
+scp-client (0.0.7-0) unstable; urgency=medium
+
+   * Implement device rename command 
+
+ -- Benjamin Schilling <benjamin.schilling33@gmail.com>  Fri, 05 Mar 2021 19:59:00 +0100
+
+scp-client (0.0.6-0) unstable; urgency=medium
 
    * Initial release 
 

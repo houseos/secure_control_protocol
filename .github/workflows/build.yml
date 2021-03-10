@@ -81,7 +81,10 @@ jobs:
         prerelease: true
     - name: Download all workflow run artifacts
       uses: actions/download-artifact@v2
-    - name: Upload Release Asset Windows
+    - name: Rename artifacts
+      run: |
+        mv scp_client_linux_amd64/scp_client.exe scp_client_linux_amd64/scp_client
+    - name: Upload Release Assets
       id: upload-release-assets
       uses: softprops/action-gh-release@v1
       env:
@@ -89,5 +92,5 @@ jobs:
       with:
         files: |
           scp_client.exe/scp_client.exe
-          scp_client_linux_amd64/scp_client.exe
+          scp_client_linux_amd64/scp_client
           scp-client.deb/scp-client_*_amd64.deb

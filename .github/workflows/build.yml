@@ -81,37 +81,13 @@ jobs:
         prerelease: true
     - name: Download all workflow run artifacts
       uses: actions/download-artifact@v2
-    - name: Test
-      run: |
-        ls -al
-        ls -al scp-client.deb/
     - name: Upload Release Asset Windows
-      id: upload-release-asset-windows 
-      uses: actions/upload-release-asset@v1
+      id: upload-release-assets
+      uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./scp_client.exe/scp_client.exe
-        asset_name: scp_client.exe
-        asset_content_type: application/octet-stream
-    - name: Upload Release Asset Linux
-      id: upload-release-asset-linux
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./scp_client_linux_amd64/scp_client.exe
-        asset_name: scp_client_linux_amd64
-        asset_content_type: application/octet-stream
-    - name: Upload Release Asset Debian
-      id: upload-release-asset-debian
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./scp-client.deb/scp-client.deb
-        asset_name: scp-client.deb
-        asset_content_type: application/octet-stream
+        files: |
+          scp_client.exe/scp_client.exe
+          scp_client_linux_amd64/scp_client.exe
+          scp-client.deb/scp-client_*_amd64.deb

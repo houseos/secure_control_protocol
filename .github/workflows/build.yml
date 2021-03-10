@@ -82,7 +82,9 @@ jobs:
     - name: Download all workflow run artifacts
       uses: actions/download-artifact@v2
     - name: Test
-      run: ls -al
+      run: |
+        - ls -al
+        - ls -al scp-client.deb/
     - name: Upload Release Asset Windows
       id: upload-release-asset-windows 
       uses: actions/upload-release-asset@v1

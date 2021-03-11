@@ -9,6 +9,7 @@ Copyright (C) 2020 Benjamin Schilling
 import 'dart:convert';
 
 // SCP
+import 'package:secure_control_protocol/scp.dart';
 import 'package:secure_control_protocol/scp_crypto.dart';
 
 class ScpResponseSetPassword {
@@ -26,7 +27,7 @@ class ScpResponseSetPassword {
         inputJson['response'] == '' ||
         inputJson['hmac'] == null ||
         inputJson['hmac'] == '') {
-      print(
+      Scp.getInstance().log(
           'ResponseSetPassword, response: ${inputJson['response']}, hmac: ${inputJson['hmac']}');
       return null;
     }

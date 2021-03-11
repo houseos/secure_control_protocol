@@ -4,6 +4,8 @@ This is a client library for IoT devices implementing the [Secure Control Protoc
 
 It also provides a very basic CLI client for demonstration purposes.
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 ## Build and run for development
 
 Install the Dart SDK version > 2.10.
@@ -26,31 +28,134 @@ See below.
 
 ## CLI Client
 
-To only discovers devices:
+The CLI client supports all necessary commands:
 
-`dart ./bin/scp_client.dart discover -i <IP address from the subnet to be scanned> -m <Subnet Mask in Prefix notation>`
+```
+> dart .\bin\scp_client.dart help
+Secure Control Protocol CLI Client
 
-To discover devices and afterwards provision them:
+Usage: scp-client.exe <command> [arguments]
 
-`dart ./bin/scp_client.dart provision -i <IP address from the subnet to be scanned> -m <Subnet Mask in Prefix notation> -s <SSID of target Wifi> -p <Password of target Wifi> -j <path to JSON>`
+Global options:
+-h, --help    Print this usage information.
 
-| Parameter | Description                                                                           |
-| --------- | ------------------------------------------------------------------------------------- |
-| i         | IP address from the to be scanned subnet                                              |
-| m         | Subnet Mask in Prefix notation                                                        |
-| s         | SSID of target Wifi                                                                   |
-| p         | Password of target Wifi                                                               |
-| j         | Create JSON file at the given path containing all provisioned devices for further use |
+Available commands:
+  control     Control the selected device.
+  discover    Discover all devices in a given IP range.
+  measure     Measure a value.
+  provision   Provision all available devices.
+  rename      Rename the selected device.
+  reset       Reset the selected device.
+  update      Update the IP addresses of all devices in a given IP range.
 
-After the provisioning the CLI client has to be connected to the provisioned Wifi.
+Run "scp-client.exe help <command>" for more information about a command.
+```
 
-Now the update of the IP address for the provisioned device has to occur.
+### Control
 
-`dart ./bin/scp_client.dart update -i <IP address from the to be scanned subnet> -m <Subnet mask in Prefix notation> -j <path to JSON with known devices>`
+```
+> dart .\bin\scp_client.dart help control
+Control the selected device.
 
-After the update the devices can be controlled by addressing them with their device ID. All required data is taken from the JSON with the known devices.
+Usage: scp-client.exe control [arguments]
+-h, --help                                                                     Print this usage information.
+-c, --command=<Any string registered in the device.>                           The command to send to the device.
+-d, --deviceId=<Can be looked up in the json with the provisioned devices.>    The ID of the device to control.
+-j, --json=<Path in the filesystem.>                                           Path to the JSON file containing all known devices.
 
-`dart ./bin/scp_client.dart control -c <action> -d <device ID> -j <path to JSON with known devices>`
+Run "scp-client.exe help" to see global options.
+```
+
+### Discover
+
+```
+> dart .\bin\scp_client.dart help discover
+Discover all devices in a given IP range.
+
+Usage: scp-client.exe discover [arguments]
+-h, --help                                          Print this usage information.
+-i, --ipaddress=<IPv4 Address (AAA.BBB.CCC.DDD)>    IP address from the subnet to be scanned.
+-m, --mask=<0 - 32>                                 The subnet mask of the network to scan.
+-j, --json=<Path in the filesystem.>                Path to the JSON file containing all known devices.
+
+Run "scp-client.exe help" to see global options.
+```
+
+### Measure
+
+```
+> dart .\bin\scp_client.dart help measure
+Measure a value.
+
+Usage: scp-client.exe measure [arguments]
+-h, --help                                                                     Print this usage information.
+-a, --action=<Any string registered in the device.>                            The measure action to send to the device.
+-d, --deviceId=<Can be looked up in the json with the provisioned devices.>    The ID of the device to control.
+-j, --json=<Path in the filesystem.>                                           Path to the JSON file containing all known devices.
+
+Run "scp-client.exe help" to see global options
+```
+
+### Provision 
+
+```
+> dart .\bin\scp_client.dart help provision
+Provision all available devices.
+
+Usage: scp-client.exe provision [arguments]
+-h, --help                                          Print this usage information.
+-i, --ipaddress=<IPv4 Address (AAA.BBB.CCC.DDD)>    IP address from the subnet to be scanned.
+-m, --mask=<0 - 32>                                 The subnet mask of the network to scan.
+-s, --ssid=<SSID>                                   The SSID of the Wifi the device should connect to.
+-p, --password=<String (32 Characters)>             The Wifi password.
+-j, --json                                          Export the provisioned devices to the given JSON file to be able to load them for the next command.
+
+Run "scp-client.exe help" to see global options
+```
+
+### Rename
+
+```
+> dart .\bin\scp_client.dart help rename   
+Rename the selected device.
+
+Usage: scp-client.exe rename [arguments]
+-h, --help                                                                     Print this usage information.
+-d, --deviceId=<Can be looked up in the json with the provisioned devices.>    The ID of the device to control.
+-n, --name=<>                                                                  The new name of the device.
+-j, --json=<Path in the filesystem.>                                           Path to the JSON file containing all known devices.
+
+Run "scp-client.exe help" to see global options.
+```
+
+### Reset
+
+```
+> dart .\bin\scp_client.dart help reset 
+Reset the selected device.
+
+Usage: scp-client.exe reset [arguments]
+-h, --help                                                                     Print this usage information.
+-d, --deviceId=<Can be looked up in the json with the provisioned devices.>    The ID of the device to control.
+-j, --json=<Path in the filesystem.>                                           Path to the JSON file containing all known devices.
+
+Run "scp-client.exe help" to see global options.
+```
+
+### Update 
+
+```
+> dart .\bin\scp_client.dart help update
+Update the stored information of all devices in a given IP range.
+
+Usage: scp-client.exe update [arguments]
+-h, --help                                          Print this usage information.
+-i, --ipaddress=<IPv4 Address (AAA.BBB.CCC.DDD)>    IP address from the subnet to be scanned.
+-m, --mask=<0 - 32>                                 The subnet mask of the network to scan.
+-j, --json=<Path in the filesystem.>                Path to the JSON file containing all known devices.
+
+Run "scp-client.exe help" to see global options.
+```
 
 ## License
 SPDX-License-Identifier: GPL-3.0-only

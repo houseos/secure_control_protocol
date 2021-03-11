@@ -29,3 +29,10 @@ devices.json
 provisioned.json
 scp_client
 scp_client.exe
+
+# Debian packaging artifacts
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/files
+debian/scp-client.substvars
+debian/scp-client/

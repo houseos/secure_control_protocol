@@ -16,7 +16,8 @@ void main() async {
   var defaultData = json.decode(
       '{[{"deviceId": "1234567890",            "deviceType": "shutter-control",            "ipAddress": "192.168.2.2",            "isDefaultPasswordSet" : "false",            "knownPassword": "1234567890123456",            "currentPasswordNumber": "1"        },        {            "deviceId": "1234567891",            "deviceType": "shutter-control",            "ipAddress": "192.168.2.2",            "isDefaultPasswordSet" : "false",            "knownPassword": "1234567890123456",            "currentPasswordNumber": "1"        }    ]}'
           .replaceAll(new RegExp(r' '), ''));
-  var resultData = json.decode('[{"deviceType":"shutter-control","deviceId":"1234567890","isDefaultPasswordSet":"false","knownPassword":"1234567890123456","currentPasswordNumber":"1"},{"deviceType":"shutter-control","deviceId":"1234567891","isDefaultPasswordSet":"false","knownPassword":"1234567890123456","currentPasswordNumber":"1"},{"deviceType":"shutter-control","deviceId":"0987654321","isDefaultPasswordSet":"false","knownPassword":"1234567890123","currentPasswordNumber":"3"}]');
+  var resultData = json.decode(
+      '[{"deviceType":"shutter-control","deviceId":"1234567890","isDefaultPasswordSet":"false","knownPassword":"1234567890123456","currentPasswordNumber":"1"},{"deviceType":"shutter-control","deviceId":"1234567891","isDefaultPasswordSet":"false","knownPassword":"1234567890123456","currentPasswordNumber":"1"},{"deviceType":"shutter-control","deviceId":"0987654321","isDefaultPasswordSet":"false","knownPassword":"1234567890123","currentPasswordNumber":"3"}]');
   String testDataPath = '.\\lib\\util\\test\\devices.json';
   //Test Octets to Integer conversion
   print('Default value:');
@@ -33,7 +34,7 @@ void main() async {
           isDefaultPasswordSet: false,
         ),
         testDataPath);
-        
+
     var jsonData = await JsonStorage.readJson(testDataPath);
     expect(jsonData, equals(resultData));
   });

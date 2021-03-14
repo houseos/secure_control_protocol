@@ -55,13 +55,13 @@ class ProvisionCommand extends Command {
 
     // validate parameters
 
-    if (!InputValidation.isIpAddress(argResults['ipaddress'])) {
+    if (!InputValidation.isIpAddress(argResults?['ipaddress'])) {
       print(
           'IP Address parameter invalid, only IPv4 in dotted-decimal notation allowed.');
       return;
     }
 
-    if (!InputValidation.isSubnetMask(argResults['mask'])) {
+    if (!InputValidation.isSubnetMask(argResults?['mask'])) {
       print('Subnet Mask invalid.');
       return;
     }
@@ -69,11 +69,11 @@ class ProvisionCommand extends Command {
     Scp scp = Scp.getInstance();
     scp.enableLogging();
     await scp.doDiscoverThenDoProvisioning(
-      argResults['ipaddress'],
-      argResults['mask'],
-      argResults['ssid'],
-      argResults['password'],
-      argResults['json'],
+      argResults?['ipaddress'],
+      argResults?['mask'],
+      argResults?['ssid'],
+      argResults?['password'],
+      argResults?['json'],
     );
   }
 }

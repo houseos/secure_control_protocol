@@ -14,6 +14,7 @@ import 'package:secure_control_protocol/scp_device.dart';
 // SCP Responses
 import 'package:secure_control_protocol/scp_responses/scp_response_discover.dart';
 import 'package:secure_control_protocol/scp_responses/scp_response_fetch_nvcn.dart';
+import 'package:secure_control_protocol/scp_responses/scp_response_rename.dart';
 import 'package:secure_control_protocol/scp_responses/scp_response_reset_to_default.dart';
 import 'package:secure_control_protocol/scp_responses/scp_response_restart.dart';
 import 'package:secure_control_protocol/scp_responses/scp_response_set_password.dart';
@@ -22,25 +23,25 @@ import 'package:secure_control_protocol/scp_responses/scp_response_control.dart'
 import 'package:secure_control_protocol/scp_responses/scp_response_measure.dart';
 
 class ScpResponseParser {
-  static ScpResponseDiscover parseDiscoverResponseNoHmac(var response) {
-    return ScpResponseDiscover.fromJson(
+  static Future<ScpResponseDiscover> parseDiscoverResponseNoHmac(var response) async {
+    return await ScpResponseDiscover.fromJson(
       jsonDecode(response),
-      null,
+      const [],
       false,
     );
   }
 
-  static ScpResponseDiscover parseDiscoverResponse(
-      var response, List<ScpDevice> devices) {
-    return ScpResponseDiscover.fromJson(
+  static Future<ScpResponseDiscover> parseDiscoverResponse(
+      var response, List<ScpDevice> devices) async {
+    return await ScpResponseDiscover.fromJson(
       jsonDecode(response),
       devices,
       true,
     );
   }
 
-  static ScpResponseFetchNvcn parseNvcnResponse(var response) {
-    return ScpResponseFetchNvcn.fromJson(
+  static Future<ScpResponseFetchNvcn> parseNvcnResponse(var response) async {
+    return await ScpResponseFetchNvcn.fromJson(
       jsonDecode(response),
     );
   }
@@ -72,6 +73,14 @@ class ScpResponseParser {
   static Future<ScpResponseResetToDefault> parseResetToDefault(
       var response, String password) async {
     return await ScpResponseResetToDefault.fromJson(
+      jsonDecode(response),
+      password,
+    );
+  }
+
+  static Future<ScpResponseRename> parseRename(
+      var response, String password) async {
+    return await ScpResponseRename.fromJson(
       jsonDecode(response),
       password,
     );

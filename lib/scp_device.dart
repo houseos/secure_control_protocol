@@ -21,15 +21,15 @@ class ScpDevice {
   int currentPasswordNumber;
 
   ScpDevice({
-    this.deviceId,
-    this.deviceType,
-    this.deviceName,
-    this.ipAddress,
-    this.isDefaultPasswordSet,
-    this.knownPassword,
-    this.currentPasswordNumber,
-    this.controlActions,
-    this.measureActions,
+    this.deviceId = '',
+    this.deviceType = '',
+    this.deviceName = '',
+    this.ipAddress = '',
+    this.isDefaultPasswordSet = false,
+    this.knownPassword = '',
+    this.currentPasswordNumber = 0,
+    this.controlActions = const[],
+    this.measureActions = const[],
   });
 
   static List<ScpDevice> devicesfromJson(var json) {
@@ -47,10 +47,10 @@ class ScpDevice {
           currentPasswordNumber: int.parse(j['currentPasswordNumber']),
           controlActions: j['controlActions'] != null
               ? Utils.dynamicListToStringList(j['controlActions'])
-              : null,
+              : List<String>.empty(),
           measureActions: j['measureActions'] != null
               ? Utils.dynamicListToStringList(j['measureActions'])
-              : null,
+              : List<String>.empty(),
         ),
       );
     }
@@ -58,12 +58,12 @@ class ScpDevice {
   }
 
   void updateFromDiscoverResponse(ScpResponseDiscover responseDiscover) {
-    this.deviceType = responseDiscover.deviceType;
-    this.deviceId = responseDiscover.deviceId;
-    this.deviceName = responseDiscover.deviceName;
-    this.controlActions = responseDiscover.controlActions;
-    this.measureActions = responseDiscover.measureActions;
-    this.currentPasswordNumber = responseDiscover.currentPasswordNumber;
+    this.deviceType = responseDiscover.getDeviceType();
+    this.deviceId = responseDiscover.getDeviceId();
+    this.deviceName = responseDiscover.getDeviceName();
+    this.controlActions = responseDiscover.getControlActions();
+    this.measureActions = responseDiscover.getMeasureActions();
+    this.currentPasswordNumber = responseDiscover.getCurrentPasswordNumber();
   }
 
   @override

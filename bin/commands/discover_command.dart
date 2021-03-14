@@ -46,26 +46,26 @@ class DiscoverCommand extends Command {
 
     // validate parameters
 
-    if (!InputValidation.isIpAddress(argResults['ipaddress'])) {
+    if (!InputValidation.isIpAddress(argResults?['ipaddress'])) {
       print(
           'IP Address parameter invalid, only IPv4 in dotted-decimal notation allowed.');
       return;
     }
 
-    if (!InputValidation.isSubnetMask(argResults['mask'])) {
+    if (!InputValidation.isSubnetMask(argResults?['mask'])) {
       print('Subnet Mask invalid.');
       return;
     }
 
     Scp scp = Scp.getInstance();
     scp.enableLogging();
-    String filePath = argResults['json'];
+    String filePath = argResults?['json'];
     if (await File('$filePath').exists()) {
       final file = await File('$filePath');
       await scp.knownDevicesFromFile(file);
       print("known devices before discover:");
       print(scp.knownDevices);
-      await scp.doDiscover(argResults['ipaddress'], argResults['mask']);
+      await scp.doDiscover(argResults?['ipaddress'], argResults?['mask']);
       print(scp.newDevices);
     } else {
       print('JSON file does not exist.');

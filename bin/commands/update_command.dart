@@ -49,22 +49,22 @@ class UpdateCommand extends Command {
 
     // validate parameters
 
-    if (!InputValidation.isIpAddress(argResults['ipaddress'])) {
+    if (!InputValidation.isIpAddress(argResults?['ipaddress'])) {
       print(
           'IP Address parameter invalid, only IPv4 in dotted-decimal notation allowed.');
       return;
     }
 
-    if (!InputValidation.isSubnetMask(argResults['mask'])) {
+    if (!InputValidation.isSubnetMask(argResults?['mask'])) {
       print('Subnet Mask invalid.');
       return;
     }
 
-    String filePath = argResults['json'];
+    String filePath = argResults?['json'];
     if (await File('$filePath').exists()) {
       final file = await File('$filePath');
       await scp.knownDevicesFromFile(file);
-      scp.doUpdate(argResults['ipaddress'], argResults['mask'], filePath);
+      await scp.doUpdate(argResults?['ipaddress'], argResults?['mask'], filePath);
     } else {
       print('JSON file does not exist.');
     }

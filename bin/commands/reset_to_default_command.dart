@@ -39,12 +39,12 @@ class ResetToDefaultCommand extends Command {
     Scp scp = Scp.getInstance();
     scp.enableLogging();
 
-    String filePath = argResults['json'];
+    String filePath = argResults?['json'];
     if (await File('$filePath').exists()) {
       final file = await File('$filePath');
       await scp.knownDevicesFromFile(file);
       await scp.resetToDefault(
-        argResults['deviceId'],
+        argResults?['deviceId'],
       );
     } else {
       print('JSON file does not exist.');

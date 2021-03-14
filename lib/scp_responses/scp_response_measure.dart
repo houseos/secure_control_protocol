@@ -10,29 +10,37 @@ import 'dart:convert';
 
 // SCP
 import 'package:secure_control_protocol/scp_crypto.dart';
+import 'package:secure_control_protocol/scp_responses/IValidatable.dart';
+import 'package:secure_control_protocol/util/input_validation.dart';
 
-class ScpResponseMeasure {
+class ScpResponseMeasure implements IValidatable {
   static const String type = "measure";
-  String action;
-  String deviceId;
-  String result;
-  String value;
+  String _action = '';
+  String _deviceId = '';
+  String _result = '';
+  String _value = '';
 
-  ScpResponseMeasure({this.action, this.deviceId, this.value, this.result});
+  ScpResponseMeasure(
+      {String action = '',
+      String deviceId = '',
+      String value = '',
+      String result = ''}) {
+    _action = action;
+    _deviceId = deviceId;
+    _value = value;
+    _result = result;
+  }
 
-  static Future<ScpResponseMeasure> fromJson(
-      var inputJson, String password) async {
-    if (inputJson['response'] == null ||
-        inputJson['response'] == '' ||
-        inputJson['hmac'] == null ||
-        inputJson['hmac'] == '') {
-      return null;
+  static Future<ScpResponseMeasure> fromJson(var inputJson, String password)async {
+    if (!InputValidation.validateJsonResponse(inputJson)) {
+      return ScpResponseMeasure();
     }
+
     String response = inputJson['response'];
     String hmac = inputJson['hmac'];
 
     // Check hmac before additional processing
-    if (ScpCrypto().verifyHMAC(response, hmac, password)) {
+    if (await ScpCrypto().verifyHMAC(response, hmac, password)) {
       var decodedPayload = base64Decode(response);
 
       var decodedJson = json.decode(utf8.decode(decodedPayload));
@@ -46,6 +54,45 @@ class ScpResponseMeasure {
         return measureResponse;
       }
     }
-    return null;
+    return ScpResponseMeasure();
+  }
+
+  String getAction() {
+    if (!isValid()) {
+      throw new ResponseInvalidException();
+    } else {
+      return _action;
+    }
+  }
+
+  String getDeviceId() {
+    if (!isValid()) {
+      throw new ResponseInvalidException();
+    } else {
+      return _deviceId;
+    }
+  }
+
+  String getResult() {
+    if (!isValid()) {
+      throw new ResponseInvalidException();
+    } else {
+      return _result;
+    }
+  }
+
+  String getValue() {
+    if (!isValid()) {
+      throw new ResponseInvalidException();
+    } else {
+      return _value;
+    }
+  }
+
+  bool isValid() {
+    if (_action != '' && _deviceId != '' && _result != '' && _value != '') {
+      return true;
+    }
+    return false;
   }
 }

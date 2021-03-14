@@ -8,12 +8,14 @@ Copyright (C) 2020 Benjamin Schilling
 // Standard Library
 import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
 
 // 3rd Party Libraries
 import 'package:collection/collection.dart';
+import 'package:convert/convert.dart';
 import 'package:cryptography/cryptography.dart' as cryptography;
 import 'package:secure_control_protocol/scp.dart';
-import 'package:web3dart/crypto.dart';
+//import 'package:web3dart/crypto.dart';
 
 // SCP
 import 'package:secure_control_protocol/scp_json.dart';
@@ -33,34 +35,33 @@ class ScpCrypto {
     Scp.getInstance().log('base64Text: $base64Text');
     List<int> decodedKey = utf8.encode(key);
     List<int> decodedNonce = base64.decode(base64nonce);
-    List<int> decodedText = List<int>.empty(growable: true);
-    Scp.getInstance().log('Decoded base64Text: ${base64.decode(base64Text)}');
-    Scp.getInstance().log('Decoded base64mac: ${base64.decode(base64mac)}');
-    decodedText.addAll(base64.decode(base64Text));
+    List<int> decodedText = base64.decode(base64Text);
+    List<int> decodedMac = base64.decode(base64mac);
     Scp.getInstance().log('Text length: ${decodedText.length}');
     Scp.getInstance().log('Text length: $payloadLength');
-    decodedText.addAll(base64.decode(base64mac));
     while (decodedText.length <= payloadLength) {
       decodedText.add(0);
     }
     Scp.getInstance().log('Decoded combined: $decodedText');
-    return await decryptMessage(decodedKey, decodedNonce, decodedText);
+    return await decryptMessage(
+        decodedKey, decodedNonce, decodedMac, decodedText);
   }
 
-  Future<String> decryptMessage(
-      List<int> key, List<int> nonce, List<int> encryptedText) async {
+  Future<String> decryptMessage(List<int> key, List<int> nonceBytes,
+      List<int> macBytes, List<int> encryptedText) async {
+    // Initialize algorithm
+    final algorithm = cryptography.Chacha20.poly1305Aead();
+    // Initialize SecretBox
+    final mac = cryptography.Mac(macBytes);
+    final secretBox =
+        cryptography.SecretBox(encryptedText, nonce: nonceBytes, mac: mac);
     // Encode Key
-    cryptography.SecretKey secretKey = cryptography.SecretKey(key);
-    // Encode nonce
-    cryptography.Nonce encodedNonce = cryptography.Nonce(nonce);
-    // Encode encrypted text
-    List<int> cipherText = encryptedText;
+    final cryptography.SecretKey secretKey = cryptography.SecretKey(key);
     // Decrypt
-    final clearText = await cryptography.chacha20Poly1305Aead
+    final clearText = await algorithm
         .decrypt(
-      cipherText,
+      secretBox,
       secretKey: secretKey,
-      nonce: encodedNonce,
     )
         .catchError((err) {
       Scp.getInstance().log(err);
@@ -78,49 +79,44 @@ class ScpCrypto {
   }
 
   Future<EncryptedPayload> encryptMessage(String key, String plainText) async {
+
+    // Initialize algorithm
+    final algorithm = cryptography.Chacha20.poly1305Aead();
+
     // Encode Key
     cryptography.SecretKey secretKey = cryptography.SecretKey(utf8.encode(key));
     // Encode encrypted text
     List<int> clearText = utf8.encode(plainText);
     // Encrypt
-    cryptography.Nonce nonce = cryptography.Nonce.randomBytes(NONCE_LENGTH);
-    final encryptedText = await cryptography.chacha20Poly1305Aead.encrypt(
+    final nonce = algorithm.newNonce();
+    final cryptography.SecretBox secretBox = await algorithm.encrypt(
       clearText,
       secretKey: secretKey,
       nonce: nonce,
     );
 
-    String base64Data = base64Encode(
-        cryptography.chacha20Poly1305Aead.getDataInCipherText(encryptedText));
-    String base64Mac = base64Encode(cryptography.chacha20Poly1305Aead
-        .getMacInCipherText(encryptedText)
-        .bytes);
+    String base64Data = base64Encode(secretBox.cipherText);
+    String base64Mac = base64Encode(secretBox.mac.bytes);
 
     return EncryptedPayload(
       base64Data: base64Data,
-      dataLength: cryptography.chacha20Poly1305Aead
-          .getDataInCipherText(encryptedText)
-          .length,
+      dataLength: secretBox.cipherText.length,
       base64Mac: base64Mac,
-      base64DataWithMac: base64Encode(encryptedText),
-      base64Nonce: base64Encode(nonce.bytes),
+      base64Nonce: base64Encode(secretBox.nonce),
     );
   }
 
-  bool verifyHMAC(String content, String hmac, String password) {
+  Future<bool> verifyHMAC(String content, String hmac, String password) async {
     cryptography.SecretKey secretKey;
-    if (password == null) {
+    if (password == '') {
       secretKey = cryptography.SecretKey(utf8.encode(defaultPassword));
     } else {
       secretKey = cryptography.SecretKey(utf8.encode(password));
     }
 
     var input = utf8.encode(content);
-    final sink =
-        cryptography.Hmac(cryptography.sha512).newSink(secretKey: secretKey);
-    sink.add(input);
-    sink.close();
-    var mac = sink.mac;
+    final hmacAlgo = cryptography.Hmac.sha512();
+    var mac = await hmacAlgo.calculateMac(input, secretKey: secretKey);
     return ListEquality().equals(hexToBytes(hmac), mac.bytes);
   }
 
@@ -129,4 +125,20 @@ class ScpCrypto {
         List<int>.generate(PASSWORD_LENGTH, (i) => _random.nextInt(256));
     return base64Url.encode(values).substring(0, PASSWORD_LENGTH);
   }
+
+  // EXTERNAL START
+  // From web3dart package
+  // SPDX-License-Identifier: MT
+  // Copyright 2019 Simon Binder
+  String strip0x(String hex) {
+    if (hex.startsWith('0x')) return hex.substring(2);
+    return hex;
+  }
+
+  Uint8List hexToBytes(String hexStr) {
+    final bytes = hex.decode(strip0x(hexStr));
+    if (bytes is Uint8List) return bytes;
+    return Uint8List.fromList(bytes);
+  }
+  // EXTERNAL END
 }

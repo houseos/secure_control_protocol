@@ -1,6 +1,6 @@
 /*
 secure_control_protocol
-ScpResponseResetToDefault Class
+ScpResponseRename Class
 SPDX-License-Identifier: GPL-3.0-only
 Copyright (C) 2020 Benjamin Schilling
 */
@@ -13,19 +13,19 @@ import 'package:secure_control_protocol/scp_crypto.dart';
 import 'package:secure_control_protocol/scp_responses/IValidatable.dart';
 import 'package:secure_control_protocol/util/input_validation.dart';
 
-class ScpResponseResetToDefault implements IValidatable {
-  static const String type = "security-reset-to-default";
+class ScpResponseRename implements IValidatable {
+  static const String type = "security-rename";
   String _deviceId = '';
   String _result = '';
 
-  ScpResponseResetToDefault({String deviceId = '', String result = ''}) {
+  ScpResponseRename({String deviceId = '', String result = ''}) {
     _deviceId = deviceId;
     _result = result;
   }
 
-  static Future<ScpResponseResetToDefault> fromJson(var inputJson, String password) async {
+  static Future<ScpResponseRename> fromJson(var inputJson, String password) async {
     if (!InputValidation.validateJsonResponse(inputJson)) {
-      return ScpResponseResetToDefault();
+      return ScpResponseRename();
     }
     String response = inputJson['response'];
     String hmac = inputJson['hmac'];
@@ -35,14 +35,14 @@ class ScpResponseResetToDefault implements IValidatable {
       var decodedPayload = base64Decode(response);
       var decodedJson = json.decode(utf8.decode(decodedPayload));
       if (decodedJson['type'] == type) {
-        ScpResponseResetToDefault restartResponse = ScpResponseResetToDefault(
+        ScpResponseRename renameResponse = ScpResponseRename(
           deviceId: decodedJson['deviceId'],
           result: decodedJson['result'],
         );
-        return restartResponse;
+        return renameResponse;
       }
     }
-    return ScpResponseResetToDefault();
+    return ScpResponseRename();
   }
 
   String getResult() {

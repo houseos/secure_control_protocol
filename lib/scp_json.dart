@@ -12,7 +12,7 @@ class ScpJson {
   String key;
   EncryptedPayload encryptedPayload;
 
-  ScpJson({this.key, this.encryptedPayload});
+  ScpJson({this.key = '', this.encryptedPayload = const EncryptedPayload()});
 
   Map<String, dynamic> toJson() => {
         'key': key,

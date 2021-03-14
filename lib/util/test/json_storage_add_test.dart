@@ -23,8 +23,8 @@ void main() async {
   print('Default value:');
   print(defaultData);
 
-  await test('Add device to File', () async {
-    await JsonStorage.storeDevice(
+  test('Add device to File', () async {
+    JsonStorage.storeDevice(
         ScpDevice(
           knownPassword: '1234567890123',
           currentPasswordNumber: 3,

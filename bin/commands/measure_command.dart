@@ -13,6 +13,7 @@ import 'package:args/command_runner.dart';
 
 // SCP
 import 'package:secure_control_protocol/scp.dart';
+import 'package:secure_control_protocol/scp_status.dart';
 
 class MeasureCommand extends Command {
   final name = "measure";
@@ -44,13 +45,16 @@ class MeasureCommand extends Command {
     Scp scp = Scp.getInstance();
     scp.enableLogging();
 
-    String filePath = argResults['json'];
+    String filePath = argResults?['json'];
     if (await File('$filePath').exists()) {
       final file = await File('$filePath');
       await scp.knownDevicesFromFile(file);
-      await scp.measure(
-        argResults['deviceId'],
-        argResults['action'],
+      ScpStatusMeasure result = await scp.measure(
+          argResults?['deviceId'],
+          argResults?['action'],
+        );
+      print(
+        result.value
       );
     } else {
       print('JSON file does not exist.');

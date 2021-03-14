@@ -45,13 +45,13 @@ class RenameCommand extends Command {
     Scp scp = Scp.getInstance();
     scp.enableLogging();
 
-    String filePath = argResults['json'];
+    String filePath = argResults?['json'];
     if (await File('$filePath').exists()) {
       final file = await File('$filePath');
       await scp.knownDevicesFromFile(file);
       await scp.rename(
-        argResults['deviceId'],
-        argResults['name'],
+        argResults?['deviceId'],
+        argResults?['name'],
       );
     } else {
       print('JSON file does not exist.');

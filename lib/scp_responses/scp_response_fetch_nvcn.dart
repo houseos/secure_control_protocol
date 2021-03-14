@@ -5,12 +5,17 @@ SPDX-License-Identifier: GPL-3.0-only
 Copyright (C) 2020 Benjamin Schilling
 */
 
-class ScpResponseFetchNvcn {
-  static const String type = "security-fetch-nvcn";
-  String deviceId;
-  String nvcn;
+import 'package:secure_control_protocol/scp_responses/IValidatable.dart';
 
-  ScpResponseFetchNvcn({this.deviceId, this.nvcn});
+class ScpResponseFetchNvcn implements IValidatable {
+  static const String type = "security-fetch-nvcn";
+  String _deviceId = '';
+  String _nvcn = '';
+
+  ScpResponseFetchNvcn({String deviceId = '', String nvcn = ''}){
+    _deviceId =deviceId;
+    _nvcn =nvcn;
+  }
 
   factory ScpResponseFetchNvcn.fromJson(var json) {
     if (json['type'] == type) {
@@ -18,7 +23,7 @@ class ScpResponseFetchNvcn {
           json['deviceId'] == '' ||
           json['nvcn'] == null ||
           json['nvcn'] == '') {
-        return null;
+        return ScpResponseFetchNvcn();
       }
 
       ScpResponseFetchNvcn nvcnResponse = ScpResponseFetchNvcn(
@@ -28,6 +33,29 @@ class ScpResponseFetchNvcn {
 
       return nvcnResponse;
     }
-    return null;
+    return ScpResponseFetchNvcn();
+  }
+
+  String getNVCN() {
+    if (!isValid()) {
+      throw new ResponseInvalidException();
+    } else {
+      return _nvcn;
+    }
+  }
+
+  String getDeviceId() {
+    if (!isValid()) {
+      throw new ResponseInvalidException();
+    } else {
+      return _deviceId;
+    }
+  }
+
+  bool isValid() {
+    if (_deviceId != '' && _nvcn != '') {
+      return true;
+    }
+    return false;
   }
 }

@@ -6,16 +6,14 @@ Copyright (C) 2020 Benjamin Schilling
 */
 
 class EncryptedPayload {
-  String base64DataWithMac;
-  String base64Data;
-  int dataLength;
-  String base64Mac;
-  String base64Nonce;
-
-  EncryptedPayload(
-      {this.base64Data,
-      this.dataLength,
-      this.base64Mac,
-      this.base64DataWithMac,
-      this.base64Nonce});
+  final String base64Data;
+  final int dataLength;
+  final String base64Mac;
+  final String base64Nonce;
+      
+  const EncryptedPayload(
+      {this.base64Data = '',
+      this.dataLength = 0,
+      this.base64Mac = '',
+      this.base64Nonce = ''});
 }

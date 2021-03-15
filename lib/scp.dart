@@ -13,9 +13,6 @@ import 'dart:io';
 // SCP
 import 'package:http/http.dart';
 import 'package:secure_control_protocol/scp_response_parser.dart';
-import 'package:secure_control_protocol/scp_responses/scp_response_rename.dart';
-import 'package:secure_control_protocol/scp_responses/scp_response_restart.dart';
-import 'package:secure_control_protocol/scp_responses/scp_response_set_wifi_config.dart';
 import 'package:secure_control_protocol/scp_status.dart';
 import 'package:secure_control_protocol/scp_message_sender.dart';
 import 'package:secure_control_protocol/scp_device.dart';

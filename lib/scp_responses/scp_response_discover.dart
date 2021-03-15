@@ -9,7 +9,7 @@ Copyright (C) 2020 Benjamin Schilling
 import 'package:secure_control_protocol/scp.dart';
 import 'package:secure_control_protocol/scp_crypto.dart';
 import 'package:secure_control_protocol/scp_device.dart';
-import 'package:secure_control_protocol/scp_responses/ivalidatable.dart';
+import 'package:secure_control_protocol/scp_responses/validatable.dart';
 import 'package:secure_control_protocol/util/utils.dart';
 
 class ScpResponseDiscover implements IValidatable {
@@ -169,7 +169,7 @@ class ScpResponseDiscover implements IValidatable {
 
   bool isValid() {
     if (_deviceId != '' &&
-        _deviceType != '' &&
+        _deviceType != '' && 
         _hmac != '' ) {
       return true;
     }

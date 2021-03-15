@@ -63,10 +63,10 @@ class DiscoverCommand extends Command {
     if (await File('$filePath').exists()) {
       final file = await File('$filePath');
       await scp.knownDevicesFromFile(file);
-      print("known devices before discover:");
-      print(scp.knownDevices);
+      //print("known devices before discover:");
+      //print(scp.knownDevices);
       await scp.doDiscover(argResults?['ipaddress'], argResults?['mask']);
-      print(scp.newDevices);
+      print('New devices: ${scp.newDevices}');
     } else {
       print('JSON file does not exist.');
     }

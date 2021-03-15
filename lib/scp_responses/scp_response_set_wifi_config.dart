@@ -10,7 +10,7 @@ import 'dart:convert';
 
 // SCP
 import 'package:secure_control_protocol/scp_crypto.dart';
-import 'package:secure_control_protocol/scp_responses/IValidatable.dart';
+import 'package:secure_control_protocol/scp_responses/ivalidatable.dart';
 import 'package:secure_control_protocol/util/input_validation.dart';
 
 class ScpResponseSetWifiConfig {
@@ -23,7 +23,8 @@ class ScpResponseSetWifiConfig {
     _result = result;
   }
 
-  static Future<ScpResponseSetWifiConfig> fromJson(var inputJson, String password) async {
+  static Future<ScpResponseSetWifiConfig> fromJson(
+      var inputJson, String password) async {
     if (!InputValidation.validateJsonResponse(inputJson)) {
       return ScpResponseSetWifiConfig();
     }

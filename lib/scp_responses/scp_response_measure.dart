@@ -10,7 +10,7 @@ import 'dart:convert';
 
 // SCP
 import 'package:secure_control_protocol/scp_crypto.dart';
-import 'package:secure_control_protocol/scp_responses/IValidatable.dart';
+import 'package:secure_control_protocol/scp_responses/ivalidatable.dart';
 import 'package:secure_control_protocol/util/input_validation.dart';
 
 class ScpResponseMeasure implements IValidatable {
@@ -31,7 +31,8 @@ class ScpResponseMeasure implements IValidatable {
     _result = result;
   }
 
-  static Future<ScpResponseMeasure> fromJson(var inputJson, String password)async {
+  static Future<ScpResponseMeasure> fromJson(
+      var inputJson, String password) async {
     if (!InputValidation.validateJsonResponse(inputJson)) {
       return ScpResponseMeasure();
     }

@@ -11,7 +11,9 @@ import 'dart:convert';
 import 'dart:io';
 
 // SCP
+import 'package:http/http.dart';
 import 'package:secure_control_protocol/scp_response_parser.dart';
+import 'package:secure_control_protocol/scp_responses/scp_response_rename.dart';
 import 'package:secure_control_protocol/scp_responses/scp_response_restart.dart';
 import 'package:secure_control_protocol/scp_responses/scp_response_set_wifi_config.dart';
 import 'package:secure_control_protocol/scp_status.dart';
@@ -29,10 +31,10 @@ class Scp {
   static Scp instance = Scp._();
 
   // List of configured devices known to SCP
-  List<ScpDevice> knownDevices;
+  List<ScpDevice> knownDevices = List<ScpDevice>.empty(growable: true);
 
   // List of newly discovered not configured devices
-  List<ScpDevice> newDevices;
+  List<ScpDevice> newDevices = List<ScpDevice>.empty(growable: true);
 
   //Logging
   bool loggingEnabled = false;
@@ -41,7 +43,7 @@ class Scp {
     return Scp.instance;
   }
 
-  Scp._({this.knownDevices = const [], this.newDevices = const []});
+  Scp._();
 
   void enableLogging() {
     loggingEnabled = true;
@@ -68,21 +70,21 @@ class Scp {
     // Get a list with all relevant IP addresses
     IPRange range = IPRange(subnet, int.parse(mask));
     List<String> allIPs = range.getAllIpAddressesInRange();
+    List<Future<Response>> responses = List<Future<Response>>.empty(growable: true);
 
-    List<Future> requests = List<Future>.empty(growable: true);
 
-    allIPs.forEach((ip) {
-      requests.add(ScpMessageSender.sendDiscoverHello(ip));
+    Future.forEach(allIPs, (String ip) {
+       responses.add(ScpMessageSender.sendDiscoverHello(ip));
     });
 
-    await Future.wait(requests).then(
+    await Future.wait(responses).then(
         (List responses) => responses.forEach((response) async {
               if (response != null && response.bodyBytes != null) {
                 if (response.statusCode == 200) {
                   log('Received discover response from ${response.request.url}.');
                   ScpResponseDiscover parsedResponse =
                       await ScpResponseParser.parseDiscoverResponse(
-                          response, knownDevices);
+                          response, knownDevices, true);
                   if (parsedResponse.isValid()) {
                     ScpDevice dev = ScpDevice(
                       deviceId: parsedResponse.getDeviceId(),
@@ -112,12 +114,12 @@ class Scp {
                       bool deviceKnown = false;
                       for (ScpDevice knownDevice in knownDevices) {
                         if (knownDevice.deviceId == dev.deviceId) {
-                          log('Device ${dev.deviceId} already known.');
+                          log('Device ${dev.deviceId} already in known devices.');
                           deviceKnown = true;
                         }
                       }
                       if (deviceKnown == false) {
-                        log('Device ${dev.deviceId} not known, adding to known devices.');
+                        log('Device ${dev.deviceId} not in known devices, adding to known devices.');
                         knownDevices.add(dev);
                       }
                     }
@@ -127,7 +129,7 @@ class Scp {
                 }
               }
             }), onError: (e) {
-      log('Could not reach device.');
+      log('Could not reach devices: $e');
     });
     return ScpStatus(status: ScpStatus.RESULT_SUCCESS);
   }
@@ -140,19 +142,19 @@ class Scp {
     IPRange range = IPRange(subnet, int.parse(mask));
     List<String> allIPs = range.getAllIpAddressesInRange();
 
-    List<Future> requests = List<Future>.empty(growable: true);
+    List<Future<Response>> reponses = List<Future<Response>>.empty(growable: true);
 
-    allIPs.forEach((ip) {
-      requests.add(ScpMessageSender.sendDiscoverHello(ip));
+    Future.forEach(allIPs, (String ip) {
+      reponses.add(ScpMessageSender.sendDiscoverHello(ip));
     });
 
-    Future.wait(requests).then(
+    Future.wait(reponses).then(
       (List responses) => responses.forEach((response) async {
         if (response != null && response.bodyBytes != null) {
           if (response.statusCode == 200) {
             ScpResponseDiscover parsedResponse =
                 await ScpResponseParser.parseDiscoverResponse(
-                    response, knownDevices);
+                    response, knownDevices, true);
             if (parsedResponse.isValid()) {
               // Update knowDevice from discover response
               knownDevices
@@ -171,6 +173,8 @@ class Scp {
                       element.deviceId == parsedResponse.getDeviceId()),
                   jsonPath);
               log('Updated device ${parsedResponse.getDeviceId()}.');
+            } else {
+              log('response invalid');
             }
           }
         }
@@ -180,26 +184,26 @@ class Scp {
   }
 
   Future<ScpStatus> doDiscoverThenDoProvisioning(String subnet, String mask,
-      String ssid, String wifiPassword, String jsonPath) async {
+      String ssid, String wifiPassword, String deviceName, String jsonPath) async {
     newDevices = List<ScpDevice>.empty(growable: true);
     // Get a list with all relevant IP addresses
     IPRange range = IPRange(subnet, int.parse(mask));
     List<String> allIPs = range.getAllIpAddressesInRange();
 
-    List<Future> requests = List<Future>.empty(growable: true);
+    List<Future<Response>> responses = List<Future<Response>>.empty(growable: true);
 
-    allIPs.forEach((ip) {
-      requests.add(ScpMessageSender.sendDiscoverHello(ip));
+    Future.forEach(allIPs, (String ip) {
+      responses.add(ScpMessageSender.sendDiscoverHello(ip));
     });
 
-    Future.wait(requests).then(
+    Future.wait(responses).then(
       (List responses) => responses.forEach((response) async {
         if (response != null && response.bodyBytes != null) {
           if (response.statusCode == 200) {
             log('Received discover response.');
             ScpResponseDiscover parsedResponse =
                 await ScpResponseParser.parseDiscoverResponse(
-                    response, const []);
+                    response, const [], false);
             if (parsedResponse.isValid()) {
               // create device
               ScpDevice dev = ScpDevice(
@@ -209,6 +213,8 @@ class Scp {
                       parsedResponse.getCurrentPasswordNumber(),
                   ipAddress: allIPs
                       .firstWhere((ip) => response.request.url.host == ip),
+                      controlActions: parsedResponse.getControlActions(),
+                      measureActions: parsedResponse.getMeasureActions(),
                   isDefaultPasswordSet:
                       parsedResponse.getCurrentPasswordNumber() == 0
                           ? true
@@ -228,10 +234,15 @@ class Scp {
                   log('Device ${dev.deviceId} already known.');
                 } else {
                   log('Device ${dev.deviceId} not known, adding to known devices.');
-                  knownDevices.add(dev);
+                  List<ScpDevice> devices = List.empty(growable: true);
+                  devices.addAll(knownDevices);
+                  devices.add(dev);
+                  knownDevices = devices;
                 }
               }
-              await doProvisioning(dev, ssid, wifiPassword, jsonPath);
+              await doProvisioning(dev, ssid, wifiPassword, deviceName, jsonPath);
+            } else {
+              log('response invalid');
             }
           }
         }
@@ -242,7 +253,7 @@ class Scp {
   }
 
   Future<ScpStatus> doProvisioning(ScpDevice device, String ssid,
-      String wifiPassword, String jsonPath) async {
+      String wifiPassword, String deviceName, String jsonPath) async {
     if (ssid == "" || wifiPassword == "") {
       log("provisioning without ssid or wifiPassword not possible.");
       return ScpStatus(status: ScpStatus.RESULT_ERROR);
@@ -254,22 +265,28 @@ class Scp {
     await ScpMessageSender.sendNewPassword(device);
 
     // send security-wifi-config
-    final ScpResponseSetWifiConfig wifiConfigResponse =
+    final ScpStatus wifiConfigStatus =
         await ScpMessageSender.sendWifiConfig(device, ssid, wifiPassword);
-    // send security-restart
-    if (wifiConfigResponse.isValid()) {
-      log('wifiConfig response is not valid, shutting down.');
-      return ScpStatus(status: ScpStatus.RESULT_ERROR);
-    } else if (wifiConfigResponse == ScpStatus.RESULT_ERROR) {
+    
+    if (wifiConfigStatus == ScpStatus.RESULT_ERROR) {
       log('failed to set wifi config.');
-      return ScpStatus(status: ScpStatus.RESULT_ERROR);
+      return wifiConfigStatus;
     }
-    final ScpResponseRestart restartResponse =
+    // rename device
+    final ScpStatus renameStatus = await rename([device], device.deviceId, deviceName);
+    if(!(renameStatus.status == ScpStatus.RESULT_DONE)){
+      return renameStatus;
+    }
+    // send security-restart
+    final ScpStatus restartStatus =
         await ScpMessageSender.sendRestart(device);
     // move device from new devices to known devices
-    if (restartResponse.isValid()) {
+    if (restartStatus.status == ScpStatus.RESULT_SUCCESS) {
       log('Restarting device successfull, removing from new devices and adding to known devices.');
-      this.knownDevices.add(device);
+      List<ScpDevice> devices = List.empty(growable: true);
+      devices.addAll(knownDevices);
+      devices.add(device);
+      knownDevices = devices;
       this
           .newDevices
           .removeWhere((element) => element.deviceId == device.deviceId);
@@ -325,10 +342,10 @@ class Scp {
     }
   }
 
-  Future<ScpStatus> rename(String deviceId, String name) async {
+  Future<ScpStatus> rename(List<ScpDevice> devices, String deviceId, String name) async {
     log('rename for device: $deviceId');
     final ScpStatus renameResponseStatus = await ScpMessageSender.sendRename(
-        knownDevices.firstWhere((element) => element.deviceId == deviceId),
+        devices.firstWhere((element) => element.deviceId == deviceId),
         name);
     log('Rename result: $renameResponseStatus');
     if (renameResponseStatus.status == ScpStatus.RESULT_DONE) {

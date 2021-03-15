@@ -50,12 +50,10 @@ class MeasureCommand extends Command {
       final file = await File('$filePath');
       await scp.knownDevicesFromFile(file);
       ScpStatusMeasure result = await scp.measure(
-          argResults?['deviceId'],
-          argResults?['action'],
-        );
-      print(
-        result.value
+        argResults?['deviceId'],
+        argResults?['action'],
       );
+      print(result.value);
     } else {
       print('JSON file does not exist.');
     }

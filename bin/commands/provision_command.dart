@@ -40,7 +40,13 @@ class ProvisionCommand extends Command {
         'password',
         abbr: 'p',
         help: 'The Wifi password.',
-        valueHelp: 'String (32 Characters)',
+        valueHelp: 'String (max. 32 Characters)',
+      )
+      ..addOption(
+        'name',
+        abbr: 'n',
+        help: 'The new name of the device.',
+        valueHelp: 'String (max. 32 Characters)',
       )
       ..addOption(
         'json',
@@ -73,6 +79,7 @@ class ProvisionCommand extends Command {
       argResults?['mask'],
       argResults?['ssid'],
       argResults?['password'],
+      argResults?['name'],
       argResults?['json'],
     );
   }

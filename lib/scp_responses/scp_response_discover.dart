@@ -9,7 +9,7 @@ Copyright (C) 2020 Benjamin Schilling
 import 'package:secure_control_protocol/scp.dart';
 import 'package:secure_control_protocol/scp_crypto.dart';
 import 'package:secure_control_protocol/scp_device.dart';
-import 'package:secure_control_protocol/scp_responses/IValidatable.dart';
+import 'package:secure_control_protocol/scp_responses/ivalidatable.dart';
 import 'package:secure_control_protocol/util/utils.dart';
 
 class ScpResponseDiscover implements IValidatable {
@@ -48,12 +48,11 @@ class ScpResponseDiscover implements IValidatable {
           json['deviceId'] == '' ||
           json['deviceType'] == null ||
           json['deviceType'] == '' ||
-          json['controlActions'] == null ||
-          json['measureActions'] == null ||
           json['currentPasswordNumber'] == null ||
           json['currentPasswordNumber'] == '' ||
           json['hmac'] == null ||
           json['hmac'] == '') {
+            print('discover response invalid');
         return ScpResponseDiscover();
       }
 
@@ -102,10 +101,14 @@ class ScpResponseDiscover implements IValidatable {
           return discoverResponse;
         }
       } else {
+        print('Not verifying HMAC.');
         return discoverResponse;
       }
+    } else {
+      print('discover-response type not found');
+      return ScpResponseDiscover();
     }
-    return ScpResponseDiscover();
+      return ScpResponseDiscover();
   }
 
   String getDeviceType() {
@@ -167,11 +170,7 @@ class ScpResponseDiscover implements IValidatable {
   bool isValid() {
     if (_deviceId != '' &&
         _deviceType != '' &&
-        _deviceName != '' &&
-        _currentPasswordNumber != 0 &&
-        _hmac != '' &&
-        _controlActions != const [] &&
-        _measureActions != const []) {
+        _hmac != '' ) {
       return true;
     }
     return false;

@@ -50,6 +50,7 @@ class RenameCommand extends Command {
       final file = await File('$filePath');
       await scp.knownDevicesFromFile(file);
       await scp.rename(
+        scp.knownDevices,
         argResults?['deviceId'],
         argResults?['name'],
       );

@@ -69,8 +69,8 @@ class ScpDevice {
   @override
   String toString() {
     String controlActions = this.controlActions.toString();
-    String measureActions = this.controlActions.toString();
-    return "ScpDevice:\n Type: $deviceType,\n ID: $deviceId,\n ID: $deviceName,\n IP: $ipAddress,\n default password: $isDefaultPasswordSet\n password: $knownPassword,\n current password number: $currentPasswordNumber,\n controlActions: $controlActions,\n measureActions: $measureActions";
+    String measureActions = this.measureActions.toString();
+    return "ScpDevice:\n Type: $deviceType,\n ID: $deviceId,\n Name: $deviceName,\n IP: $ipAddress,\n default password: $isDefaultPasswordSet\n password: $knownPassword,\n current password number: $currentPasswordNumber,\n controlActions: $controlActions,\n measureActions: $measureActions";
   }
 
   Map<String, dynamic> toJson() => {

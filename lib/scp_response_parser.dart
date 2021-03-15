@@ -32,11 +32,11 @@ class ScpResponseParser {
   }
 
   static Future<ScpResponseDiscover> parseDiscoverResponse(
-      var response, List<ScpDevice> devices) async {
+      var response, List<ScpDevice> devices, bool verifyHmac) async {
     return await ScpResponseDiscover.fromJson(
       jsonDecode(response),
       devices,
-      true,
+      verifyHmac,
     );
   }
 

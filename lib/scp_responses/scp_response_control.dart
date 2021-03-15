@@ -10,7 +10,7 @@ import 'dart:convert';
 
 // SCP
 import 'package:secure_control_protocol/scp_crypto.dart';
-import 'package:secure_control_protocol/scp_responses/IValidatable.dart';
+import 'package:secure_control_protocol/scp_responses/ivalidatable.dart';
 import 'package:secure_control_protocol/util/input_validation.dart';
 
 class ScpResponseControl implements IValidatable {

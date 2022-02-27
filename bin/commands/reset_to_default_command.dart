@@ -14,6 +14,8 @@ import 'package:args/command_runner.dart';
 // SCP
 import 'package:secure_control_protocol/scp.dart';
 
+import '../error.dart';
+
 class ResetToDefaultCommand extends Command {
   final name = "reset";
   final description = "Reset the selected device.";
@@ -36,6 +38,12 @@ class ResetToDefaultCommand extends Command {
 
   void run() async {
     print('scp_client reset');
+
+    if(!argResults!.options.contains('deviceId') || !argResults!.options.contains('json')){
+      print(usage);
+      exit(ScpError.USAGE_ERROR); // Exit code 64 indicates a usage error.
+    }
+
     Scp scp = Scp.getInstance();
     scp.enableLogging();
 

@@ -6,11 +6,15 @@ Copyright (C) 2020 Benjamin Schilling
 */
 
 // 3rd Party Libraries
+import 'dart:io';
+
 import 'package:args/command_runner.dart';
 
 // SCP
 import 'package:secure_control_protocol/scp.dart';
 import 'package:secure_control_protocol/util/input_validation.dart';
+
+import '../error.dart';
 
 class ProvisionCommand extends Command {
   final name = "provision";
@@ -58,7 +62,10 @@ class ProvisionCommand extends Command {
 
   void run() async {
     print('scp_client Provision');
-
+    if(!argResults!.options.contains('ipaddress') || !argResults!.options.contains('mask') || !argResults!.options.contains('ssid')|| !argResults!.options.contains('password')|| !argResults!.options.contains('name')|| !argResults!.options.contains('json')){
+      print(usage);
+      exit(ScpError.USAGE_ERROR); // Exit code 64 indicates a usage error.
+    }
     // validate parameters
 
     if (!InputValidation.isIpAddress(argResults?['ipaddress'])) {

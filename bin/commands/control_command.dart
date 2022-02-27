@@ -14,6 +14,8 @@ import 'package:args/command_runner.dart';
 // SCP
 import 'package:secure_control_protocol/scp.dart';
 
+import '../error.dart';
+
 class ControlCommand extends Command {
   final name = "control";
   final description = "Control the selected device.";
@@ -21,9 +23,9 @@ class ControlCommand extends Command {
   ControlCommand() {
     argParser
       ..addOption(
-        'command',
-        abbr: 'c',
-        help: 'The command to send to the device.',
+        'action',
+        abbr: 'a',
+        help: 'The action to send to the device.',
         valueHelp: 'Any string registered in the device.',
       )
       ..addOption(
@@ -42,6 +44,12 @@ class ControlCommand extends Command {
 
   void run() async {
     print('scp_client control');
+    if (!argResults!.options.contains('action') ||
+        !argResults!.options.contains('deviceId') ||
+        !argResults!.options.contains('json')) {
+      print(usage);
+      exit(ScpError.USAGE_ERROR); // Exit code 64 indicates a usage error.
+    }
     Scp scp = Scp.getInstance();
     scp.enableLogging();
 
@@ -51,7 +59,7 @@ class ControlCommand extends Command {
       await scp.knownDevicesFromFile(file);
       await scp.control(
         argResults?['deviceId'],
-        argResults?['command'],
+        argResults?['action'],
       );
     } else {
       print('JSON file does not exist.');

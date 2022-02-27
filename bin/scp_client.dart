@@ -19,11 +19,10 @@ import 'commands/update_command.dart';
 import 'commands/control_command.dart';
 import 'commands/reset_to_default_command.dart';
 import 'commands/measure_command.dart';
+import 'error.dart';
 
 void main(List<String> args) async {
   //-d to decode and decrypt, first argument is key, second is nvcn, third is payload
-
-  final int USAGE_ERROR = 64;
 
   var runner;
   if (Platform.isWindows) {
@@ -44,6 +43,6 @@ void main(List<String> args) async {
     ..run(args).catchError((error) {
       if (error is! UsageException) throw error;
       print(runner.usage);
-      exit(USAGE_ERROR); // Exit code 64 indicates a usage error.
+      exit(ScpError.USAGE_ERROR); // Exit code 64 indicates a usage error.
     });
 }

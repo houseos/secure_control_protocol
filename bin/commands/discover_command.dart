@@ -15,6 +15,8 @@ import 'package:args/command_runner.dart';
 import 'package:secure_control_protocol/scp.dart';
 import 'package:secure_control_protocol/util/input_validation.dart';
 
+import '../error.dart';
+
 class DiscoverCommand extends Command {
   final name = "discover";
   final description = "Discover all devices in a given IP range.";
@@ -44,6 +46,11 @@ class DiscoverCommand extends Command {
   void run() async {
     print('scp_client Discover');
 
+    if(!argResults!.options.contains('ipaddress') || !argResults!.options.contains('mask') || !argResults!.options.contains('json')){
+      print(usage);
+      exit(ScpError.USAGE_ERROR); // Exit code 64 indicates a usage error.
+    }
+
     // validate parameters
 
     if (!InputValidation.isIpAddress(argResults?['ipaddress'])) {
@@ -59,16 +66,19 @@ class DiscoverCommand extends Command {
 
     Scp scp = Scp.getInstance();
     scp.enableLogging();
-    String filePath = argResults?['json'];
-    if (await File('$filePath').exists()) {
-      final file = await File('$filePath');
-      await scp.knownDevicesFromFile(file);
-      //print("known devices before discover:");
-      //print(scp.knownDevices);
-      await scp.doDiscover(argResults?['ipaddress'], argResults?['mask']);
-      print('New devices: ${scp.newDevices}');
-    } else {
-      print('JSON file does not exist.');
+
+    if (argResults!.options.contains('json')) {
+      String filePath = argResults?['json'];
+      if (await File('$filePath').exists()) {
+        final file = await File('$filePath');
+        await scp.knownDevicesFromFile(file);
+        print("known devices before discover:");
+        print(scp.knownDevices);
+      } else {
+        print('JSON file does not exist.');
+      }
     }
+    await scp.doDiscover(argResults?['ipaddress'], argResults?['mask']);
+    print('New devices: ${scp.newDevices}');
   }
 }

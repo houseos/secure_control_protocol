@@ -42,6 +42,12 @@ class MeasureCommand extends Command {
   }
   void run() async {
     print('scp_client measure');
+
+    if(!argResults!.options.contains('action') || !argResults!.options.contains('deviceId') || !argResults!.options.contains('json')){
+      print(usage);
+      exit(ScpError.USAGE_ERROR); // Exit code 64 indicates a usage error.
+    }
+
     Scp scp = Scp.getInstance();
     scp.enableLogging();
 

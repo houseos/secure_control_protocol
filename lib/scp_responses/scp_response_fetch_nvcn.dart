@@ -5,7 +5,7 @@ SPDX-License-Identifier: GPL-3.0-only
 Copyright (C) 2020 Benjamin Schilling
 */
 
-import 'package:secure_control_protocol/scp_responses/ivalidatable.dart';
+import 'package:secure_control_protocol/scp_responses/validatable.dart';
 
 class ScpResponseFetchNvcn implements IValidatable {
   static const String type = "security-fetch-nvcn";

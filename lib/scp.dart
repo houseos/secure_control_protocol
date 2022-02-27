@@ -111,7 +111,7 @@ class Scp {
                       bool deviceKnown = false;
                       for (ScpDevice knownDevice in knownDevices) {
                         if (knownDevice.deviceId == dev.deviceId) {
-                          log('Device ${dev.deviceId} already in known devices.');
+                          log('Device ${dev.deviceId} already part of known devices.');
                           deviceKnown = true;
                         }
                       }

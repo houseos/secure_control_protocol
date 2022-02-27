@@ -14,6 +14,8 @@ import 'package:args/command_runner.dart';
 // SCP
 import 'package:secure_control_protocol/scp.dart';
 
+import '../error.dart';
+
 class RenameCommand extends Command {
   final name = "rename";
   final description = "Rename the selected device.";
@@ -42,6 +44,12 @@ class RenameCommand extends Command {
 
   void run() async {
     print('scp_client reset');
+
+    if(!argResults!.options.contains('deviceId') || !argResults!.options.contains('name') || !argResults!.options.contains('json')){
+      print(usage);
+      exit(ScpError.USAGE_ERROR); // Exit code 64 indicates a usage error.
+    }
+
     Scp scp = Scp.getInstance();
     scp.enableLogging();
 

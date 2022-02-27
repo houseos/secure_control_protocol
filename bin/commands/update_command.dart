@@ -15,6 +15,8 @@ import 'package:args/command_runner.dart';
 import 'package:secure_control_protocol/scp.dart';
 import 'package:secure_control_protocol/util/input_validation.dart';
 
+import '../error.dart';
+
 class UpdateCommand extends Command {
   final name = "update";
   final description =
@@ -47,8 +49,12 @@ class UpdateCommand extends Command {
     Scp scp = Scp.getInstance();
     scp.enableLogging();
 
-    // validate parameters
+    if(!argResults!.options.contains('ipaddress') || !argResults!.options.contains('mask') || !argResults!.options.contains('json')){
+      print(usage);
+      exit(ScpError.USAGE_ERROR); // Exit code 64 indicates a usage error.
+    }
 
+    // validate parameters
     if (!InputValidation.isIpAddress(argResults?['ipaddress'])) {
       print(
           'IP Address parameter invalid, only IPv4 in dotted-decimal notation allowed.');

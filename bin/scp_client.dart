@@ -10,6 +10,7 @@ import 'dart:io';
 
 // 3rd Party Libraries
 import 'package:args/command_runner.dart';
+import 'package:secure_control_protocol/util/error.dart';
 
 // SCP
 import 'commands/discover_command.dart';
@@ -19,7 +20,6 @@ import 'commands/update_command.dart';
 import 'commands/control_command.dart';
 import 'commands/reset_to_default_command.dart';
 import 'commands/measure_command.dart';
-import 'error.dart';
 
 void main(List<String> args) async {
   //-d to decode and decrypt, first argument is key, second is nvcn, third is payload

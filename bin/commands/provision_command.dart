@@ -6,11 +6,15 @@ Copyright (C) 2020 Benjamin Schilling
 */
 
 // 3rd Party Libraries
+import 'dart:io';
+
 import 'package:args/command_runner.dart';
 
 // SCP
 import 'package:secure_control_protocol/scp.dart';
+import 'package:secure_control_protocol/util/error.dart';
 import 'package:secure_control_protocol/util/input_validation.dart';
+
 
 class ProvisionCommand extends Command {
   final name = "provision";
@@ -40,7 +44,13 @@ class ProvisionCommand extends Command {
         'password',
         abbr: 'p',
         help: 'The Wifi password.',
-        valueHelp: 'String (32 Characters)',
+        valueHelp: 'String (max. 32 Characters)',
+      )
+      ..addOption(
+        'name',
+        abbr: 'n',
+        help: 'The new name of the device.',
+        valueHelp: 'String (max. 32 Characters)',
       )
       ..addOption(
         'json',
@@ -52,16 +62,19 @@ class ProvisionCommand extends Command {
 
   void run() async {
     print('scp_client Provision');
-
+    if(!argResults!.options.contains('ipaddress') || !argResults!.options.contains('mask') || !argResults!.options.contains('ssid')|| !argResults!.options.contains('password')|| !argResults!.options.contains('name')|| !argResults!.options.contains('json')){
+      print(usage);
+      exit(ScpError.USAGE_ERROR); // Exit code 64 indicates a usage error.
+    }
     // validate parameters
 
-    if (!InputValidation.isIpAddress(argResults['ipaddress'])) {
+    if (!InputValidation.isIpAddress(argResults?['ipaddress'])) {
       print(
           'IP Address parameter invalid, only IPv4 in dotted-decimal notation allowed.');
       return;
     }
 
-    if (!InputValidation.isSubnetMask(argResults['mask'])) {
+    if (!InputValidation.isSubnetMask(argResults?['mask'])) {
       print('Subnet Mask invalid.');
       return;
     }
@@ -69,11 +82,12 @@ class ProvisionCommand extends Command {
     Scp scp = Scp.getInstance();
     scp.enableLogging();
     await scp.doDiscoverThenDoProvisioning(
-      argResults['ipaddress'],
-      argResults['mask'],
-      argResults['ssid'],
-      argResults['password'],
-      argResults['json'],
+      argResults?['ipaddress'],
+      argResults?['mask'],
+      argResults?['ssid'],
+      argResults?['password'],
+      argResults?['name'],
+      argResults?['json'],
     );
   }
 }

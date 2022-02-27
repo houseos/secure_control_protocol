@@ -19,7 +19,7 @@ void main() async {
   //Test Octets to Integer conversion
   print('Default value:');
   print(defaultData);
-  await test('Read JSON String from File', () async {
+  test('Read JSON String from File', () async {
     var jsonData = await JsonStorage.readJson(testDataPath);
     expect(jsonData, equals(defaultData));
   });

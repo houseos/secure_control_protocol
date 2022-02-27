@@ -9,7 +9,6 @@ class Utils {
   static List<String> dynamicListToStringList(List<dynamic> input) {
     List<String> output = List<String>.empty(growable: true);
     for (var i in input) {
-      print(i);
       output.add('$i');
     }
     return output;

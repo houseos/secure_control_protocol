@@ -13,7 +13,9 @@ import 'package:args/command_runner.dart';
 
 // SCP
 import 'package:secure_control_protocol/scp.dart';
+import 'package:secure_control_protocol/util/error.dart';
 import 'package:secure_control_protocol/util/input_validation.dart';
+
 
 class UpdateCommand extends Command {
   final name = "update";
@@ -47,24 +49,28 @@ class UpdateCommand extends Command {
     Scp scp = Scp.getInstance();
     scp.enableLogging();
 
-    // validate parameters
+    if(!argResults!.options.contains('ipaddress') || !argResults!.options.contains('mask') || !argResults!.options.contains('json')){
+      print(usage);
+      exit(ScpError.USAGE_ERROR); // Exit code 64 indicates a usage error.
+    }
 
-    if (!InputValidation.isIpAddress(argResults['ipaddress'])) {
+    // validate parameters
+    if (!InputValidation.isIpAddress(argResults?['ipaddress'])) {
       print(
           'IP Address parameter invalid, only IPv4 in dotted-decimal notation allowed.');
       return;
     }
 
-    if (!InputValidation.isSubnetMask(argResults['mask'])) {
+    if (!InputValidation.isSubnetMask(argResults?['mask'])) {
       print('Subnet Mask invalid.');
       return;
     }
 
-    String filePath = argResults['json'];
+    String filePath = argResults?['json'];
     if (await File('$filePath').exists()) {
       final file = await File('$filePath');
       await scp.knownDevicesFromFile(file);
-      scp.doUpdate(argResults['ipaddress'], argResults['mask'], filePath);
+      await scp.doUpdate(argResults?['ipaddress'], argResults?['mask'], filePath);
     } else {
       print('JSON file does not exist.');
     }

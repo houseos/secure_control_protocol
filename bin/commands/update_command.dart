@@ -13,9 +13,9 @@ import 'package:args/command_runner.dart';
 
 // SCP
 import 'package:secure_control_protocol/scp.dart';
+import 'package:secure_control_protocol/util/error.dart';
 import 'package:secure_control_protocol/util/input_validation.dart';
 
-import '../error.dart';
 
 class UpdateCommand extends Command {
   final name = "update";

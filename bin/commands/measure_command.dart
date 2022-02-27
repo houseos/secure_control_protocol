@@ -14,6 +14,8 @@ import 'package:args/command_runner.dart';
 // SCP
 import 'package:secure_control_protocol/scp.dart';
 import 'package:secure_control_protocol/scp_status.dart';
+import 'package:secure_control_protocol/util/error.dart';
+
 
 class MeasureCommand extends Command {
   final name = "measure";

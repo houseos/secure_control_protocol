@@ -13,8 +13,8 @@ import 'package:args/command_runner.dart';
 
 // SCP
 import 'package:secure_control_protocol/scp.dart';
+import 'package:secure_control_protocol/util/error.dart';
 
-import '../error.dart';
 
 class RenameCommand extends Command {
   final name = "rename";

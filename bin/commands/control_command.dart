@@ -13,8 +13,7 @@ import 'package:args/command_runner.dart';
 
 // SCP
 import 'package:secure_control_protocol/scp.dart';
-
-import '../error.dart';
+import 'package:secure_control_protocol/util/error.dart';
 
 class ControlCommand extends Command {
   final name = "control";

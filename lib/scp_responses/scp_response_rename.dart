@@ -1,6 +1,6 @@
 /*
 secure_control_protocol
-ScpResponseMeasure Class
+ScpResponseRename Class
 SPDX-License-Identifier: GPL-3.0-only
 Copyright (C) 2020 Benjamin Schilling
 */
@@ -13,56 +13,43 @@ import 'package:secure_control_protocol/scp_crypto.dart';
 import 'package:secure_control_protocol/scp_responses/validatable.dart';
 import 'package:secure_control_protocol/util/input_validation.dart';
 
-class ScpResponseMeasure implements IValidatable {
-  static const String type = "measure";
-  String _action = '';
+class ScpResponseRename implements IValidatable {
+  static const String type = "security-rename";
   String _deviceId = '';
   String _result = '';
-  String _value = '';
 
-  ScpResponseMeasure(
-      {String action = '',
-      String deviceId = '',
-      String value = '',
-      String result = ''}) {
-    _action = action;
+  ScpResponseRename({String deviceId = '', String result = ''}) {
     _deviceId = deviceId;
-    _value = value;
     _result = result;
   }
 
-  static Future<ScpResponseMeasure> fromJson(
-      var inputJson, String password) async {
+  static Future<ScpResponseRename> fromJson(var inputJson, String password) async {
     if (!InputValidation.validateJsonResponse(inputJson)) {
-      return ScpResponseMeasure();
+      return ScpResponseRename();
     }
-
     String response = inputJson['response'];
     String hmac = inputJson['hmac'];
 
     // Check hmac before additional processing
     if (await ScpCrypto().verifyHMAC(response, hmac, password)) {
       var decodedPayload = base64Decode(response);
-
       var decodedJson = json.decode(utf8.decode(decodedPayload));
       if (decodedJson['type'] == type) {
-        ScpResponseMeasure measureResponse = ScpResponseMeasure(
-          action: decodedJson['action'],
+        ScpResponseRename renameResponse = ScpResponseRename(
           deviceId: decodedJson['deviceId'],
-          value: decodedJson['value'],
           result: decodedJson['result'],
         );
-        return measureResponse;
+        return renameResponse;
       }
     }
-    return ScpResponseMeasure();
+    return ScpResponseRename();
   }
 
-  String getAction() {
+  String getResult() {
     if (!isValid()) {
       throw new ResponseInvalidException();
     } else {
-      return _action;
+      return _result;
     }
   }
 
@@ -74,24 +61,8 @@ class ScpResponseMeasure implements IValidatable {
     }
   }
 
-  String getResult() {
-    if (!isValid()) {
-      throw new ResponseInvalidException();
-    } else {
-      return _result;
-    }
-  }
-
-  String getValue() {
-    if (!isValid()) {
-      throw new ResponseInvalidException();
-    } else {
-      return _value;
-    }
-  }
-
   bool isValid() {
-    if (_action != '' && _deviceId != '' && _result != '' && _value != '') {
+    if (_deviceId != '' && _result != '') {
       return true;
     }
     return false;

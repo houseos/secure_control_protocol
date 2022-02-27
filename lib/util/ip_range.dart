@@ -9,7 +9,7 @@ Copyright (C) 2020 Benjamin Schilling
 import 'dart:math';
 
 class IPRange {
-  int netmask;
+  int netmask = 24;
 
   int address = 0;
 
@@ -58,7 +58,7 @@ class IPRange {
     // Set all host bits to 1
     int invertor = 0;
     for (int i = 0; i < hostbits; i++) {
-      invertor += pow(2, i);
+      invertor += pow(2, i).toInt();
     }
     int lastAddress = address | invertor;
     //substract 1 to get last address instead of broadcast address
@@ -78,7 +78,7 @@ class IPRange {
     // Get only the network bits set to 1
     int invertor = 0;
     for (int i = 0; i < netmask; i++) {
-      invertor += pow(2, 31 - i);
+      invertor += pow(2, 31 - i).toInt();
     }
     int lastAddress = address & invertor;
 

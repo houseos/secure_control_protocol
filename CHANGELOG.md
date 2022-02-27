@@ -1,6 +1,16 @@
+# 0.0.11
+ * Refactored for null safety
+
+# 0.0.10
+ * Fix rename command
+
+# 0.0.9
+ * Fix measure command
+
 # 0.0.8
  * Return measured value in doMeasure
  * Fix discover response parsing
+  
 # 0.0.7
  * Implement device rename command 
 

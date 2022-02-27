@@ -9,33 +9,35 @@ Copyright (C) 2020 Benjamin Schilling
 import 'dart:convert';
 
 // SCP
-import 'package:secure_control_protocol/scp.dart';
 import 'package:secure_control_protocol/scp_crypto.dart';
+import 'package:secure_control_protocol/scp_responses/validatable.dart';
+import 'package:secure_control_protocol/util/input_validation.dart';
 
-class ScpResponseSetPassword {
+class ScpResponseSetPassword implements IValidatable {
   static const String type = "security-pw-change";
-  String deviceId;
-  String currentPasswordNumber;
-  String result;
+  String _deviceId = '';
+  String _currentPasswordNumber = '';
+  String _result = '';
 
   ScpResponseSetPassword(
-      {this.deviceId, this.currentPasswordNumber, this.result});
+      {String deviceId = '',
+      String currentPasswordNumber = '',
+      String result = ''}) {
+    _deviceId = deviceId;
+    _currentPasswordNumber = currentPasswordNumber;
+    _result = result;
+  }
 
-  static Future<ScpResponseSetPassword> fromJson(
-      var inputJson, String password) async {
-    if (inputJson['response'] == null ||
-        inputJson['response'] == '' ||
-        inputJson['hmac'] == null ||
-        inputJson['hmac'] == '') {
-      Scp.getInstance().log(
-          'ResponseSetPassword, response: ${inputJson['response']}, hmac: ${inputJson['hmac']}');
-      return null;
+  static Future<ScpResponseSetPassword> fromJson(var inputJson, String password) async {
+    if (!InputValidation.validateJsonResponse(inputJson)) {
+      return ScpResponseSetPassword();
     }
+
     String response = inputJson['response'];
     String hmac = inputJson['hmac'];
 
     // Check hmac before additional processing
-    if (ScpCrypto().verifyHMAC(response, hmac, password)) {
+    if (await ScpCrypto().verifyHMAC(response, hmac, password)) {
       var decodedPayload = base64Decode(response);
       var decodedJson = json.decode(utf8.decode(decodedPayload));
       if (decodedJson['type'] == type) {
@@ -47,6 +49,37 @@ class ScpResponseSetPassword {
         return setPasswordResponse;
       }
     }
-    return null;
+    return ScpResponseSetPassword();
+  }
+
+  String getResult() {
+    if (!isValid()) {
+      throw new ResponseInvalidException();
+    } else {
+      return _result;
+    }
+  }
+
+  String getDeviceId() {
+    if (!isValid()) {
+      throw new ResponseInvalidException();
+    } else {
+      return _deviceId;
+    }
+  }
+
+  String getCurrentPasswordNumber() {
+    if (!isValid()) {
+      throw new ResponseInvalidException();
+    } else {
+      return _currentPasswordNumber;
+    }
+  }
+
+  bool isValid() {
+    if (_deviceId != '' && _currentPasswordNumber != '' && _result != '') {
+      return true;
+    }
+    return false;
   }
 }

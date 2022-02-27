@@ -13,6 +13,8 @@ import 'package:args/command_runner.dart';
 
 // SCP
 import 'package:secure_control_protocol/scp.dart';
+import 'package:secure_control_protocol/util/error.dart';
+
 
 class ResetToDefaultCommand extends Command {
   final name = "reset";
@@ -36,15 +38,21 @@ class ResetToDefaultCommand extends Command {
 
   void run() async {
     print('scp_client reset');
+
+    if(!argResults!.options.contains('deviceId') || !argResults!.options.contains('json')){
+      print(usage);
+      exit(ScpError.USAGE_ERROR); // Exit code 64 indicates a usage error.
+    }
+
     Scp scp = Scp.getInstance();
     scp.enableLogging();
 
-    String filePath = argResults['json'];
+    String filePath = argResults?['json'];
     if (await File('$filePath').exists()) {
       final file = await File('$filePath');
       await scp.knownDevicesFromFile(file);
       await scp.resetToDefault(
-        argResults['deviceId'],
+        argResults?['deviceId'],
       );
     } else {
       print('JSON file does not exist.');

@@ -10,6 +10,7 @@ import 'dart:io';
 
 // 3rd Party Libraries
 import 'package:args/command_runner.dart';
+import 'package:secure_control_protocol/util/error.dart';
 
 // SCP
 import 'commands/discover_command.dart';
@@ -22,8 +23,6 @@ import 'commands/measure_command.dart';
 
 void main(List<String> args) async {
   //-d to decode and decrypt, first argument is key, second is nvcn, third is payload
-
-  final int USAGE_ERROR = 64;
 
   var runner;
   if (Platform.isWindows) {
@@ -44,6 +43,6 @@ void main(List<String> args) async {
     ..run(args).catchError((error) {
       if (error is! UsageException) throw error;
       print(runner.usage);
-      exit(USAGE_ERROR); // Exit code 64 indicates a usage error.
+      exit(ScpError.USAGE_ERROR); // Exit code 64 indicates a usage error.
     });
 }

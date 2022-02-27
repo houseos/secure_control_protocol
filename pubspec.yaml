@@ -5,7 +5,7 @@
 
 name: secure_control_protocol
 description: Dart client library for secure-control-protocol devices (see https://github.com/HouseOS/secure-control-protocol)
-version: 0.0.8
+version: 0.0.11
 repository: https://github.com/HouseOS/secure_control_protocol
 issue_tracker: https://github.com/HouseOS/secure_control_protocol/issues
 documentation: https://github.com/HouseOS/secure_control_protocol/blob/master/README.md
@@ -13,12 +13,12 @@ executables:
   scp_client:
 
 environment:
-  sdk: '>=2.5.0 <3.0.0'
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
-  args: ^1.5.0
-  http: ^0.12.1
-  cryptography: ^1.0.4
+  args: ^2.0.0
+  http: ^0.13.0
+  cryptography: ^2.0.1
   test: ^1.9.1
   collection: ^1.14.12
-  web3dart: ^1.2.3
+  convert: ^3.0.0

@@ -6,13 +6,6 @@ Copyright (C) 2020 Benjamin Schilling
 */
 
 class InputValidation {
-  static bool isNull(Object o) {
-    if (o == null) {
-      return true;
-    }
-    return false;
-  }
-
   static bool isEmpty(Object o) {
     if (o == '') {
       return true;
@@ -24,7 +17,7 @@ class InputValidation {
     // Check IPv4 dotted notation
 
     // Shortes "0.0.0.0" = 7, longest "255.255.255.255" = 15
-    if (isNull(s) || isEmpty(s) || s.length < 7 || s.length > 15) {
+    if (isEmpty(s) || s.length < 7 || s.length > 15) {
       return false;
     }
     //Check regex
@@ -47,7 +40,7 @@ class InputValidation {
   }
 
   static bool isSubnetMask(String s) {
-    if (isNull(s) || isEmpty(s) || s.length > 2) {
+    if (isEmpty(s) || s.length > 2) {
       return false;
     }
     //Check regex
@@ -61,6 +54,16 @@ class InputValidation {
       return false;
     }
 
+    return true;
+  }
+
+  static bool validateJsonResponse(var inputJson) {
+    if (inputJson['response'] == null ||
+        inputJson['response'] == '' ||
+        inputJson['hmac'] == null ||
+        inputJson['hmac'] == '') {
+      return false;
+    }
     return true;
   }
 }

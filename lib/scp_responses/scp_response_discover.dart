@@ -9,30 +9,39 @@ Copyright (C) 2020 Benjamin Schilling
 import 'package:secure_control_protocol/scp.dart';
 import 'package:secure_control_protocol/scp_crypto.dart';
 import 'package:secure_control_protocol/scp_device.dart';
+import 'package:secure_control_protocol/scp_responses/validatable.dart';
 import 'package:secure_control_protocol/util/utils.dart';
 
-class ScpResponseDiscover {
+class ScpResponseDiscover implements IValidatable {
   static const String type = "discover-response";
-  String deviceId;
-  String deviceType;
-  String deviceName;
-  int currentPasswordNumber;
-  String hmac;
-  List<String> controlActions;
-  List<String> measureActions;
+  String _deviceId = '';
+  String _deviceType = '';
+  String _deviceName = '';
+  int _currentPasswordNumber = 0;
+  String _hmac = '';
+  List<String> _controlActions = const [];
+  List<String> _measureActions = const [];
 
   ScpResponseDiscover(
-      {this.deviceId,
-      this.deviceType,
-      this.deviceName,
-      this.currentPasswordNumber,
-      this.hmac,
-      this.controlActions,
-      this.measureActions});
+      {String deviceId = '',
+      String deviceType = '',
+      String deviceName = '',
+      int currentPasswordNumber = 0,
+      String hmac = '',
+      List<String> controlActions = const [],
+      List<String> measureActions = const []}) {
+    _deviceId = deviceId;
+    _deviceType = deviceType;
+    _deviceName = deviceName;
+    _currentPasswordNumber = currentPasswordNumber;
+    _hmac = hmac;
+    _controlActions = controlActions;
+    _measureActions = measureActions;
+  }
 
   /// Returns a ScpResponseDiscover if HMAC valid, otherwise null
-  factory ScpResponseDiscover.fromJson(
-      var json, List<ScpDevice> devices, bool verifyHmac) {
+  static  Future<ScpResponseDiscover> fromJson(
+      var json, List<ScpDevice> devices, bool verifyHmac) async {
     Scp.getInstance().log('$json');
     if (json['type'] == type) {
       if (json['deviceId'] == null ||
@@ -43,7 +52,8 @@ class ScpResponseDiscover {
           json['currentPasswordNumber'] == '' ||
           json['hmac'] == null ||
           json['hmac'] == '') {
-        return null;
+            print('discover response invalid');
+        return ScpResponseDiscover();
       }
 
       ScpResponseDiscover discoverResponse = ScpResponseDiscover(
@@ -52,48 +62,117 @@ class ScpResponseDiscover {
         deviceName: json['deviceName'] != null ? json['deviceName'] : '',
         controlActions: json['controlActions'] != null
             ? Utils.dynamicListToStringList(json['controlActions'])
-            : null,
+            : const [],
         measureActions: json['measureActions'] != null
             ? Utils.dynamicListToStringList(json['measureActions'])
-            : null,
+            : const [],
         currentPasswordNumber: int.parse(json['currentPasswordNumber']),
         hmac: json['hmac'],
       );
 
-      String password = null;
-      if (devices != null && devices.length > 0) {
+      String password = '';
+      if (devices.length > 0) {
         password = devices
             .firstWhere(
-                (element) => element.deviceId == discoverResponse.deviceId)
+                (element) => element.deviceId == discoverResponse.getDeviceId())
             .knownPassword;
       }
 
       // Check hmac before additional processing
       if (verifyHmac) {
         String controlActions = '';
-        if (discoverResponse.controlActions != null) {
-          for (String s in discoverResponse.controlActions) {
+        if (discoverResponse.isValid()) {
+          for (String s in discoverResponse.getControlActions()) {
             controlActions += '"$s"';
           }
         }
         String measureActions = '';
-        if (discoverResponse.measureActions != null) {
-          for (String s in discoverResponse.measureActions) {
+        if (discoverResponse.isValid()) {
+          for (String s in discoverResponse.getMeasureActions()) {
             measureActions += '"$s"';
           }
         }
         String verifyString =
-            '${ScpResponseDiscover.type}${discoverResponse.deviceId}${discoverResponse.deviceType}${discoverResponse.deviceName}${controlActions}${measureActions}${discoverResponse.currentPasswordNumber}';
+            '${ScpResponseDiscover.type}${discoverResponse.getDeviceId()}${discoverResponse.getDeviceType()}${discoverResponse.getDeviceName()}${controlActions}${measureActions}${discoverResponse.getCurrentPasswordNumber()}';
         Scp.getInstance().log('verify string:');
         Scp.getInstance().log(verifyString);
-        if (ScpCrypto()
-            .verifyHMAC(verifyString, discoverResponse.hmac, password)) {
+        if (await ScpCrypto()
+            .verifyHMAC(verifyString, discoverResponse.getHmac(), password)) {
           return discoverResponse;
         }
       } else {
+        print('Not verifying HMAC.');
         return discoverResponse;
       }
+    } else {
+      print('discover-response type not found');
+      return ScpResponseDiscover();
     }
-    return null;
+      return ScpResponseDiscover();
+  }
+
+  String getDeviceType() {
+    if (!isValid()) {
+      throw new ResponseInvalidException();
+    } else {
+      return _deviceType;
+    }
+  }
+
+  String getDeviceName() {
+    if (!isValid()) {
+      throw new ResponseInvalidException();
+    } else {
+      return _deviceName;
+    }
+  }
+
+  String getDeviceId() {
+    if (!isValid()) {
+      throw new ResponseInvalidException();
+    } else {
+      return _deviceId;
+    }
+  }
+
+  List<String> getControlActions() {
+    if (!isValid()) {
+      throw new ResponseInvalidException();
+    } else {
+      return _controlActions;
+    }
+  }
+
+  List<String> getMeasureActions() {
+    if (!isValid()) {
+      throw new ResponseInvalidException();
+    } else {
+      return _measureActions;
+    }
+  }
+
+  int getCurrentPasswordNumber() {
+    if (!isValid()) {
+      throw new ResponseInvalidException();
+    } else {
+      return _currentPasswordNumber;
+    }
+  }
+
+  String getHmac() {
+    if (!isValid()) {
+      throw new ResponseInvalidException();
+    } else {
+      return _hmac;
+    }
+  }
+
+  bool isValid() {
+    if (_deviceId != '' &&
+        _deviceType != '' && 
+        _hmac != '' ) {
+      return true;
+    }
+    return false;
   }
 }

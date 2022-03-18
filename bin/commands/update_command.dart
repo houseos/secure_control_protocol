@@ -45,7 +45,6 @@ class UpdateCommand extends Command {
   }
 
   void run() async {
-    print('scp_client update');
     Scp scp = Scp.getInstance();
     scp.enableLogging();
 

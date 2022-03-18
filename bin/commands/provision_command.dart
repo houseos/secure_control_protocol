@@ -61,7 +61,6 @@ class ProvisionCommand extends Command {
   }
 
   void run() async {
-    print('scp_client Provision');
     if(!argResults!.options.contains('ipaddress') || !argResults!.options.contains('mask') || !argResults!.options.contains('ssid')|| !argResults!.options.contains('password')|| !argResults!.options.contains('name')|| !argResults!.options.contains('json')){
       print(usage);
       exit(ScpError.USAGE_ERROR); // Exit code 64 indicates a usage error.

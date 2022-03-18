@@ -42,7 +42,6 @@ class ControlCommand extends Command {
   }
 
   void run() async {
-    print('scp_client control');
     if (!argResults!.options.contains('action') ||
         !argResults!.options.contains('deviceId') ||
         !argResults!.options.contains('json')) {

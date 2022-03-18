@@ -46,7 +46,7 @@ Available commands:
   provision   Provision all available devices.
   rename      Rename the selected device.
   reset       Reset the selected device.
-  update      Update the IP addresses of all devices in a given IP range.
+  update      Update the stored information of all devices in a given IP range.
 
 Run "scp-client.exe help <command>" for more information about a command.
 ```
@@ -54,12 +54,12 @@ Run "scp-client.exe help <command>" for more information about a command.
 ### Control
 
 ```
-> dart .\bin\scp_client.dart help control
+> dart .\bin\scp_client.dart control help
 Control the selected device.
 
 Usage: scp-client.exe control [arguments]
 -h, --help                                                                     Print this usage information.
--c, --command=<Any string registered in the device.>                           The command to send to the device.
+-a, --action=<Any string registered in the device.>                            The action to send to the device.
 -d, --deviceId=<Can be looked up in the json with the provisioned devices.>    The ID of the device to control.
 -j, --json=<Path in the filesystem.>                                           Path to the JSON file containing all known devices.
 
@@ -93,7 +93,7 @@ Usage: scp-client.exe measure [arguments]
 -d, --deviceId=<Can be looked up in the json with the provisioned devices.>    The ID of the device to control.
 -j, --json=<Path in the filesystem.>                                           Path to the JSON file containing all known devices.
 
-Run "scp-client.exe help" to see global options
+Run "scp-client.exe help" to see global options.
 ```
 
 ### Provision 
@@ -107,16 +107,17 @@ Usage: scp-client.exe provision [arguments]
 -i, --ipaddress=<IPv4 Address (AAA.BBB.CCC.DDD)>    IP address from the subnet to be scanned.
 -m, --mask=<0 - 32>                                 The subnet mask of the network to scan.
 -s, --ssid=<SSID>                                   The SSID of the Wifi the device should connect to.
--p, --password=<String (32 Characters)>             The Wifi password.
+-p, --password=<String (max. 32 Characters)>        The Wifi password.
+-n, --name=<String (max. 32 Characters)>            The new name of the device.
 -j, --json                                          Export the provisioned devices to the given JSON file to be able to load them for the next command.
 
-Run "scp-client.exe help" to see global options
+Run "scp-client.exe help" to see global options.
 ```
 
 ### Rename
 
 ```
-> dart .\bin\scp_client.dart help rename   
+> dart .\bin\scp_client.dart help rename
 Rename the selected device.
 
 Usage: scp-client.exe rename [arguments]

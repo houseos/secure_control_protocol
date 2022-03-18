@@ -44,9 +44,8 @@ class DiscoverCommand extends Command {
   }
 
   void run() async {
-    print('scp_client Discover');
 
-    if(!argResults!.options.contains('ipaddress') || !argResults!.options.contains('mask') || !argResults!.options.contains('json')){
+    if(!argResults!.options.contains('ipaddress') || !argResults!.options.contains('mask')){
       print(usage);
       exit(ScpError.USAGE_ERROR); // Exit code 64 indicates a usage error.
     }

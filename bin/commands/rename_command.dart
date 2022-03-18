@@ -43,7 +43,7 @@ class RenameCommand extends Command {
   }
 
   void run() async {
-    print('scp_client reset');
+    print('scp_client rename');
 
     if(!argResults!.options.contains('deviceId') || !argResults!.options.contains('name') || !argResults!.options.contains('json')){
       print(usage);

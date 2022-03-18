@@ -43,7 +43,6 @@ class MeasureCommand extends Command {
       );
   }
   void run() async {
-    print('scp_client measure');
 
     if(!argResults!.options.contains('action') || !argResults!.options.contains('deviceId') || !argResults!.options.contains('json')){
       print(usage);

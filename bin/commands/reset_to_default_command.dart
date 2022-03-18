@@ -37,7 +37,6 @@ class ResetToDefaultCommand extends Command {
   }
 
   void run() async {
-    print('scp_client reset');
 
     if(!argResults!.options.contains('deviceId') || !argResults!.options.contains('json')){
       print(usage);
